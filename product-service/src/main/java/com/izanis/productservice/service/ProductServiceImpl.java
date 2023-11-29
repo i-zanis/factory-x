@@ -43,12 +43,26 @@ public class ProductServiceImpl implements ProductService {
         id.equals(product.getId()), "ID {} must match the product ID {}", id, product.getId());
   }
 
-  @Cacheable(cacheNames = "productListCache", condition = "!#showAvailableInventory")
   @Override
+  @Cacheable(cacheNames = "productListCache", condition = "!#showAvailableInventory")
   public ProductPagedList findProducts(
-      String name, Product.Category category, Pageable pageable, Boolean showAvailableStock) {
-    Page<Product> page;
+      String name, Product.Category category, Pageable pageable, Boolean showAvailableInventory) {
+    Page<Product> page = queryProducts(name, category, pageable);
 
+    return new ProductPagedList(
+        page.getContent().stream().map(p -> mapToProduct(p, showAvailableInventory)).toList(),
+        PageRequest.of(page.getPageable().getPageNumber(), page.getPageable().getPageSize()),
+        page.getTotalElements());
+  }
+
+  private ProductDto mapToProduct(Product product , Boolean showAvailableInventory) {
+    return showAvailableInventory
+        ? productMapper.toProductDto(product)
+        : productMapper.toProductDtoWithInventory(product);
+  }
+
+  private Page<Product> queryProducts(String name, Product.Category category, Pageable pageable) {
+    Page<Product> page;
     if (StringUtils.hasText(name) && category != null) {
       page = productRepository.findAllByNameAndCategory(name, category, pageable);
     } else if (StringUtils.hasText(name)) {
@@ -58,16 +72,7 @@ public class ProductServiceImpl implements ProductService {
     } else {
       page = productRepository.findAll(pageable);
     }
-
-    return new ProductPagedList(
-        page.getContent().stream()
-            .map(
-                showAvailableStock
-                    ? productMapper::toProductDtoWithInventory
-                    : productMapper::toProductDto)
-            .toList(),
-        PageRequest.of(page.getPageable().getPageNumber(), page.getPageable().getPageSize()),
-        page.getTotalElements());
+    return page;
   }
 
   @Override
@@ -92,9 +97,9 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public void update(@NonNull UUID id, @NonNull Product product) {
+  public ProductDto update(@NonNull UUID id, @NonNull Product product) {
     validateIdForProductUpdate(id, product);
-    productRepository.save(product);
+    return productMapper.toProductDto(productRepository.save(product));
   }
 
   @Override
@@ -103,6 +108,7 @@ public class ProductServiceImpl implements ProductService {
     productRepository.deleteById(id);
   }
 
+  @Cacheable(cacheNames = "productUpcCache")
   @Override
   public Optional<Product> findByUpc(String upc) {
     // TODO(i-zanis): check upc annotation @ValidUpc
