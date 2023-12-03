@@ -8,15 +8,12 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @Aspect
 @Component
 @Slf4j
 public class LoggingAspect {
 
-  @Pointcut("execution(* com.izanis.shoppingx.productservice.product.service.ProductServiceImpl.*(..))")
+  @Pointcut("execution(* com.izanis.productservice.service.ProductService.*(..))")
   public void serviceMethods() {}
 
   @AfterReturning(pointcut = "serviceMethods()", returning = "result")
