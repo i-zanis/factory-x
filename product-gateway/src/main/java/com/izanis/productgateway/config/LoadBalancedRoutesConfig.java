@@ -18,10 +18,20 @@ public class LoadBalancedRoutesConfig {
             r -> r.path("/product/**", "/api/v1/products/**").uri("lb://localhost:8081"))
         .route(
             "product-inventory-service",
-            r -> r.path("/inventory/**", "/api/v1/inventories/**").uri("lb://localhost:8082"))
+            r ->
+                r.path("/inventory/**", "/api/v1/inventories/**")
+                    .filters(
+                        f ->
+                            f.circuitBreaker(
+                                c ->
+                                    c.setName("inventory-circuit-breaker")
+                                        .setFallbackUri("forward:/inventory-failover")
+                                        .setRouteId("inventory-failover")))
+                    .uri("lb://localhost:8082"))
         .route(
             "product-order-service",
             r -> r.path("/order/**", "/api/v1/orders/**").uri("lb://localhost:8083"))
+        .route(r -> r.path("inventory-failover/**").uri("lb://inventory-failover"))
         .build();
   }
 }

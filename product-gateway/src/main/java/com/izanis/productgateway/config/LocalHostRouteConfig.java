@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-@Profile("!local-discovery")
 @Configuration
+@Profile("!local-discovery")
 public class LocalHostRouteConfig {
   @Bean
   public RouteLocator loadHostRoutes(RouteLocatorBuilder builder) {
@@ -15,13 +15,15 @@ public class LocalHostRouteConfig {
         .routes()
         .route(
             "product-service",
-            r -> r.path("/product/**", "/api/v1/products/**").uri("http://localhost:8081"))
+            r ->
+                r.path("/api/v1/product*", "/api/v1/product/**", "api/v1/upc/*")
+                    .uri("http://localhost:8080"))
         .route(
             "product-inventory-service",
-            r -> r.path("/inventory/**", "/api/v1/inventories/**").uri("http://localhost:8082"))
+            r -> r.path("/api/v1/inventory*", "/api/v1/inventory/**").uri("http://localhost:8081"))
         .route(
             "product-order-service",
-            r -> r.path("/order/**", "/api/v1/orders/**").uri("http://localhost:8083"))
+            r -> r.path("/api/v1/order*", "/api/v1/order/**").uri("http://localhost:8082"))
         .build();
   }
 }
