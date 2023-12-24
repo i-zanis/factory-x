@@ -14,13 +14,12 @@
     <groupId>com.izanis</groupId>
     <artifactId>product-order-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>product-order-service</name>
     <description>product-order-service</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -35,6 +34,7 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+            <version>4.0.2</version>
         </dependency>
 
     </dependencies>
