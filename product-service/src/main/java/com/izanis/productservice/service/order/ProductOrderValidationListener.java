@@ -14,7 +14,7 @@ public class ProductOrderValidationListener {
   private final ProductOrderValidator validator;
   private final JmsTemplate jmsTemplate;
 
-  @JmsListener(destination = JmsConfig.VALIDATE_ORDER_QUEUE)
+//  @JmsListener(destination = JmsConfig.VALIDATE_ORDER_QUEUE)
   public void listener(ValidateOrderRequest validateOrderRequest) {
     Boolean isValid = validator.validateOrder(validateOrderRequest.getProductOrderDto());
 

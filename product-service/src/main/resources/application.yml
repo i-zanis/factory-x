@@ -21,9 +21,36 @@ spring:
       mode: always
   artemis.users: artemis
   artemis.passwords: simetraehcapa
+  cloud:
+    config:
+      enabled: false
+      fail-fast: true
+  zipkin:
+    enabled: false
+    bareUrl: http://localhost:9411
+  config:
+    import: 'optional:configserver:/'
+  security:
+    user:
+      name: sec-admin
+      password: sec-secret
 
 izanis:
   factory:
     inventoryUser: admin
     inventoryPassword: password
-    productInventoryServiceHost: address
+    productInventoryServiceHost: http://localhost:8082
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 100
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      inventoryService:
+        baseConfig: default

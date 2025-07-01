@@ -23,13 +23,11 @@ public class ManufactureProductListener {
   @JmsListener(destination = JmsConfig.MANUFACTURE_REQUEST_QUEUE)
   public void listen(ManufactureProductEvent manufactureProductEvent) {
     ProductDto productDto = manufactureProductEvent.getProductDto();
-    // TODO(i-zanis): remove when AOP configured
     log.info("Product manufacture request received: {}", productDto);
     Product product = productRepository.getReferenceById(productDto.id());
     ProductDto newProductDto =
         productDto.toBuilder().availableInventory(product.getAvailableInventory()).build();
     ProductEvent newInventoryEvent = NewInventoryEvent.builder().productDto(newProductDto).build();
-    // TODO(i-zanis): remove when AOP configured
     log.debug("Sending new inventory event: {}", newInventoryEvent);
     jmsTemplate.convertAndSend(JmsConfig.NEW_INVENTORY_QUEUE, newInventoryEvent);
   }

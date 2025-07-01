@@ -79,13 +79,11 @@ public class ProductService {
 
   @Cacheable(cacheNames = "productCache", key = "#id", condition = "!#showAvailableInventory")
   public ProductDto findById(@NonNull UUID id, Boolean showAvailableInventory) {
-    //    Validate.notNull(id, "Product ID cannot be null");
     Product productDto = productRepository.findById(id).orElseThrow(EntityNotFoundException::new);
     return mapToProduct(productDto, showAvailableInventory);
   }
 
   public Product save(@NonNull Product product) {
-    //    Validate.notNull(product, "Product cannot be null");
     return productRepository.save(product);
   }
 

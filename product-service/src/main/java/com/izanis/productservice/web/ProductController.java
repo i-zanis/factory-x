@@ -6,6 +6,10 @@ import com.izanis.productservice.service.ProductService;
 import com.izanis.productservice.web.mapper.ProductMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +38,8 @@ public class ProductController {
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
   public ProductDto getProduct(@PathVariable UUID id) {
-    return productService.findById(id);
+    var x = productService.findById(id);
+    return x;
   }
 
   @PostMapping

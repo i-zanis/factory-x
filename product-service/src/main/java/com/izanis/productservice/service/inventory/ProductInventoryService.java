@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@Profile("!local-discovery")
 @Slf4j
 public class ProductInventoryService {
   public static final String INVENTORY_PATH = "/api/v1/product/inventory";

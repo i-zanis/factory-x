@@ -6,16 +6,12 @@ import com.izanis.productservice.entity.Product;
 import com.izanis.productservice.repository.ProductRepository;
 import com.izanis.productservice.service.inventory.ProductInventoryService;
 import com.izanis.productservice.web.mapper.ProductMapper;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import com.izanis.productservice.web.mapper.ProductMapper;
 
 @Slf4j
 @Service

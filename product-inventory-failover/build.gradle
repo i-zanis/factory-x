@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    // Docker Image Creation
+    id 'com.google.cloud.tools.jib' version '3.1.4'
+}
+
+group = 'com.izanis'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.0.3'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.0'
+    implementation 'org.springframework.cloud:spring-cloud-starter-zipkin:2.2.8.RELEASE'
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'org.projectlombok:lombok:1.18.28'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.projectreactor:reactor-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+// Jib Configuration for layering
+jib {
+    from {
+        image = 'amazoncorretto:17.0.7-alpine'
+    }
+    to {
+        image = 'com.izanis/${project.name}:${version}'
+        tags = ['latest']
+    }
+    container {
+        entrypoint = ['java', '-Djava.security.egd=file:/dev/./urandom', 'org.springframework.boot.loader.JarLauncher']
+        ports = ['8080']
+        labels = ['PROJECT_NAME': project.name, 'PROJECT': project.group + ':' + project.name + ':' + project.version]
+    }
+}

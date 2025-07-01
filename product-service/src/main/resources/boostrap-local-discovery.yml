@@ -1,0 +1,19 @@
+# spring
+#   cloud:
+#     discovery:
+#      enabled: true
+#     config:
+#       discovery:
+#         service-id: fx-config
+#       fail-fast: true
+#   security:
+#     user:
+#       name: sec-adminxxx
+#       password: sec-secret
+# 	zipkin:
+# 		enabled: false
+# 		bareUrl: http://localhost:9411
+#
+
+
+# TODO(i-zanis): Bootstrap files are getting phased out

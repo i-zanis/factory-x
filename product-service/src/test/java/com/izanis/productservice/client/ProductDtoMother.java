@@ -1,11 +1,11 @@
 package com.izanis.productservice.client;
 
-import com.izanis.productservice.product.dto.ProductDto;
 
+import com.izanis.model.ProductDto;
 import java.math.BigDecimal;
 
 public class ProductDtoMother {
-  static ProductDto.ProductDtoBuilder defaultProductDto() {
+  static ProductDto.Builder basic() {
     return ProductDto.builder()
       .name("name")
       .price(BigDecimal.TEN);
