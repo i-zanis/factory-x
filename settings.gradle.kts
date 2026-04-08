@@ -7,6 +7,7 @@ pluginManagement {
 
 rootProject.name = "factory-x"
 
+include("common-domain")
 include("catalog-service")
 include("inventory-service")
 include("order-service")
