@@ -1,6 +1,6 @@
 package com.factoryx.catalog.grpc;
 
-import com.factoryx.catalog.service.ProductService;
+import com.factoryx.catalog.product.ProductService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;

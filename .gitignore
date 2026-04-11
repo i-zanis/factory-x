@@ -1,8 +1,7 @@
 # Gradle
 .gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
 
 # IDE files
 .idea/
@@ -22,6 +21,7 @@ build/
 target/
 dist/
 out/
+bin/
 
 # Log files
 *.log
@@ -38,6 +38,3 @@ out/
 /nbdist/
 /.nb-gradle/
 HELP.md
-!**/src/main/**/target/
-!**/src/test/**/target/
-!.mvn/wrapper/maven-wrapper.jar
