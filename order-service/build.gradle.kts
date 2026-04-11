@@ -1,12 +1,10 @@
 plugins {
-    id("java")
     id("org.springframework.boot")
-    id("com.google.protobuf") version "0.9.4"
+    id("com.google.protobuf")
 }
 
 dependencies {
     implementation(project(":common-domain"))
-    implementation(project(":catalog-service"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -17,9 +15,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind")
 
     // [gRPC Client]
-    implementation("net.devh:grpc-spring-boot-starter:3.1.0")
-    implementation("io.grpc:grpc-stub:1.69.0")
-    implementation("io.grpc:grpc-protobuf:1.69.0")
+    implementation("net.devh:grpc-spring-boot-starter:${project.extra["grpcSpringBootVersion"]}")
+    implementation("io.grpc:grpc-stub:${project.extra["grpcVersion"]}")
+    implementation("io.grpc:grpc-protobuf:${project.extra["grpcVersion"]}")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     // [Lombok]
@@ -31,17 +29,17 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.25.5"
+        artifact = "com.google.protobuf:protoc:${project.extra["protobufVersion"]}"
     }
     plugins {
-        id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.69.0"
+        create("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${project.extra["grpcVersion"]}"
         }
     }
     generateProtoTasks {
         all().forEach {
             it.plugins {
-                id("grpc")
+                create("grpc")
             }
         }
     }

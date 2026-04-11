@@ -1,8 +1,7 @@
 plugins {
-    id("java")
     id("org.springframework.boot")
-    id("org.openapi.generator") version "7.10.0"
-    id("com.google.protobuf") version "0.9.4"
+    id("org.openapi.generator")
+    id("com.google.protobuf")
 }
 
 dependencies {
@@ -28,9 +27,9 @@ dependencies {
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
 
     // gRPC Server & Protobufs
-    implementation("net.devh:grpc-spring-boot-starter:3.1.0")
-    implementation("io.grpc:grpc-stub:1.69.0")
-    implementation("io.grpc:grpc-protobuf:1.69.0")
+    implementation("net.devh:grpc-spring-boot-starter:${project.extra["grpcSpringBootVersion"]}")
+    implementation("io.grpc:grpc-stub:${project.extra["grpcVersion"]}")
+    implementation("io.grpc:grpc-protobuf:${project.extra["grpcVersion"]}")
 
     // Java Annotations (needed for gRPC generated code on Java 9+)
     implementation("javax.annotation:javax.annotation-api:1.3.2")
@@ -40,23 +39,23 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.25.5"
+        artifact = "com.google.protobuf:protoc:${project.extra["protobufVersion"]}"
     }
     plugins {
-        id("grpc") {
-            artifact = "io.grpc:protoc-gen-grpc-java:1.69.0"
+        create("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${project.extra["grpcVersion"]}"
         }
     }
     generateProtoTasks {
         all().forEach {
             it.plugins {
-                id("grpc")
+                create("grpc")
             }
         }
     }
 }
 
-val openApiGenerate by tasks.registering(org.openapitools.generator.gradle.plugin.tasks.GenerateTask::class) {
+openApiGenerate {
     generatorName.set("spring")
     inputSpec.set("$projectDir/src/main/resources/api/catalog-api.yaml")
     outputDir.set("$buildDir/generated/openapi/")

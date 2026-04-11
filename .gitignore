@@ -33,8 +33,11 @@ bin/
 
 # Other
 .DS_Store
+.env
+.env.*
 /nbproject/private/
 /nbbuild/
 /nbdist/
 /.nb-gradle/
 HELP.md
+Thumbs.db
