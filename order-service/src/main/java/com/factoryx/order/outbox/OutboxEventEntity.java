@@ -1,4 +1,4 @@
-package com.factoryx.order.persistence;
+package com.factoryx.order.outbox;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -19,29 +18,24 @@ import java.util.UUID;
 public class OutboxEventEntity {
 
     @Id
-    private UUID id;
+    private UUID id = UUID.randomUUID();
 
     @Column(nullable = false)
-    private String aggregateType; // e.g. Order
+    private String aggregateType;
 
     @Column(nullable = false)
     private String aggregateId;
 
     @Column(nullable = false)
-    private String eventType; // e.g. OrderCreated
+    private String type;
 
-    @Column(nullable = false, columnDefinition = "text")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String payload;
 
-    @Column(nullable = false, updatable = false)
-    private Instant createdAt;
-
-    public OutboxEventEntity(String aggregateType, String aggregateId, String eventType, String payload) {
-        this.id = UUID.randomUUID();
+    public OutboxEventEntity(String aggregateType, String aggregateId, String type, String payload) {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
-        this.eventType = eventType;
+        this.type = type;
         this.payload = payload;
-        this.createdAt = Instant.now();
     }
 }

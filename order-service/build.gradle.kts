@@ -13,6 +13,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
 
+    // [Kafka/Debezium Outbox]
+    implementation("com.fasterxml.jackson.core:jackson-databind")
+
     // [gRPC Client]
     implementation("net.devh:grpc-spring-boot-starter:3.1.0")
     implementation("io.grpc:grpc-stub:1.69.0")
