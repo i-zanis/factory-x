@@ -1,10 +1,10 @@
 package com.factoryx.order;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Order Service Entry Point
@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * CQRS view layer for quick read access.
  */
 @SpringBootApplication
-@EnableJpaAuditing(auditorAwareRef = "auditorProvider")
+@EnableJpaAuditing
 public class OrderApplication {
     public static void main(String[] args) {
         SpringApplication.run(OrderApplication.class, args);
