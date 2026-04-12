@@ -11,6 +11,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("io.micrometer:micrometer-registry-prometheus")
+    implementation("io.micrometer:micrometer-tracing-bridge-otel")
+    implementation("io.opentelemetry:opentelemetry-exporter-otlp")
+    implementation("net.logstash.logback:logstash-logback-encoder")
+    testImplementation("org.springframework.cloud:spring-cloud-starter-contract-verifier")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
     // DB
@@ -84,3 +89,5 @@ sourceSets {
 tasks.named("compileJava") {
     dependsOn("openApiGenerate")
 }
+
+
