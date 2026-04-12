@@ -1,7 +1,6 @@
 package com.factoryx.catalog.product;
 
 import com.factoryx.catalog.api.ProductsApi;
-import com.factoryx.catalog.model.Product;
 import com.factoryx.catalog.model.ProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,17 +16,18 @@ public class ProductController implements ProductsApi {
 
     private final ProductService productService;
 
+    // TODO(i-zanis): see if @ResponseStatus is more idiomatic
     @Override
-    public ResponseEntity<List<Product>> listProducts() {
-        List<Product> products = productService.getAllProducts().stream()
+    public ResponseEntity<List<com.factoryx.catalog.model.Product>> listProducts() {
+        var products = productService.getAllProducts().stream()
                 .map(this::toDto)
                 .toList();
         return ResponseEntity.ok(products);
     }
 
     @Override
-    public ResponseEntity<Product> createProduct(ProductRequest productRequest) {
-        ProductEntity created = productService.createProduct(
+    public ResponseEntity<com.factoryx.catalog.model.Product> createProduct(ProductRequest productRequest) {
+        var created = productService.createProduct(
                 productRequest.getSku(),
                 productRequest.getName(),
                 productRequest.getPrice()
@@ -36,20 +36,20 @@ public class ProductController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<Product> getProductById(UUID id) {
+    public ResponseEntity<com.factoryx.catalog.model.Product> getProductById(UUID id) {
         return productService.getProductById(id)
                 .map(this::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // TODO(i-zanis): think where to put this
-    private Product toDto(ProductEntity entity) {
-        Product dto = new Product();
+    // TODO(i-zanis): maybe needs to go to another file
+    private com.factoryx.catalog.model.Product toDto(Product entity) {
+        com.factoryx.catalog.model.Product dto = new com.factoryx.catalog.model.Product();
         dto.setId(entity.getId());
-        dto.setSku(entity.getSku());
+        dto.setSku(entity.getSku().value());
         dto.setName(entity.getName());
-        dto.setPrice(entity.getPrice());
+        dto.setPrice(entity.getPrice().doubleValue());
         return dto;
     }
 }

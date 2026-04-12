@@ -1,5 +1,7 @@
 package com.factoryx.catalog.product;
 
+import com.factoryx.common.domain.Money;
+import com.factoryx.common.domain.Sku;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,21 +17,21 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public List<ProductEntity> getAllProducts() {
+    public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public Optional<ProductEntity> getProductById(UUID id) {
+    public Optional<Product> getProductById(UUID id) {
         return productRepository.findById(id);
     }
-    
-    public Optional<ProductEntity> getProductBySku(String sku) {
-        return productRepository.findBySku(sku);
+
+    public Optional<Product> getProductBySku(String skuValue) {
+        return productRepository.findBySku(new Sku(skuValue));
     }
 
     @Transactional
-    public ProductEntity createProduct(String sku, String name, double price) {
-        ProductEntity newProduct = new ProductEntity(UUID.randomUUID(), sku, name, price);
+    public Product createProduct(String skuValue, String name, double priceValue) {
+        var newProduct = Product.create(new Sku(skuValue), name, Money.of(priceValue));
         return productRepository.save(newProduct);
     }
 }
