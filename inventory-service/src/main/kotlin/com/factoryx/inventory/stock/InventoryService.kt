@@ -7,8 +7,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class InventoryService(
-    private val stockLevelRepository: StockLevelRepository,
-    private val stockTransactionLogRepository: StockTransactionLogRepository
+    private val stockLevelRepository: StockLevelRepository
 ) {
 
     @Transactional
@@ -16,9 +15,8 @@ class InventoryService(
         val sku = Sku(skuValue)
         if (!stockLevelRepository.existsById(sku)) {
             val stockLevel = StockLevel(sku, Quantity(0))
-            val transactionLog = stockLevel.replenish(Quantity(initialQuantity))
+            stockLevel.replenish(Quantity(initialQuantity))
             stockLevelRepository.save(stockLevel)
-            stockTransactionLogRepository.save(transactionLog)
         }
     }
 
@@ -28,14 +26,13 @@ class InventoryService(
         val stockLevel =
             stockLevelRepository.findById(sku).orElseThrow { IllegalArgumentException("SKU not found: $skuValue") }
 
-        val transactionLog = if (quantityChange >= 0) {
+        if (quantityChange >= 0) {
             stockLevel.replenish(Quantity(quantityChange))
         } else {
-            stockLevel.consume(Quantity(-quantityChange))
+            stockLevel.consume(Quantity(quantityChange))
         }
         
         stockLevelRepository.save(stockLevel)
-        // TODO(i-zanis): does this need to be moved to another layer?
-        stockTransactionLogRepository.save(transactionLog)
     }
 }
+
