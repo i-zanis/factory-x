@@ -1,7 +1,9 @@
 package com.factoryx.common.domain;
 
+import jakarta.persistence.Embeddable;
 import org.apache.commons.lang3.StringUtils;
 
+@Embeddable
 public record Sku(String value) {
 
     private static final String SKU_PATTERN = "^[A-Z]{3}-\\d{4}$";

@@ -1,10 +1,12 @@
 package com.factoryx.common.domain;
 
+import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 import static java.util.Objects.requireNonNullElse;
 
+@Embeddable
 public record Money(BigDecimal amount) {
     // TODO(i-zanis): see if there's a better name
     public static final Money ZERO = new Money(BigDecimal.ZERO);
