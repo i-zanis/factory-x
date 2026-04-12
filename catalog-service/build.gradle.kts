@@ -2,6 +2,7 @@ plugins {
     id("org.springframework.boot")
     id("org.openapi.generator")
     id("com.google.protobuf")
+    id("org.graalvm.buildtools.native")
 }
 
 dependencies {
