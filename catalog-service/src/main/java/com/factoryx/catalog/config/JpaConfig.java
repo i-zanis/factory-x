@@ -11,9 +11,6 @@ public class JpaConfig {
 
     @Bean
     public AuditorAware<String> auditorProvider() {
-        // Normally, this would extract the current user from the SecurityContext
-        // e.g., SecurityContextHolder.getContext().getAuthentication().getName()
-        // For now, we return a default system user until Spring Security is added.
         return () -> Optional.of("system");
     }
 }

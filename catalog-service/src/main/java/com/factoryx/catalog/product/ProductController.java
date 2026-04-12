@@ -43,7 +43,7 @@ public class ProductController implements ProductsApi {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // TODO(i-zanis): maybe needs to go to another file
+    // TODO(i-zanis): maybe needs to go to another file and rename or see what to do with the generated DTO
     private com.factoryx.catalog.model.Product toDto(Product entity) {
         com.factoryx.catalog.model.Product dto = new com.factoryx.catalog.model.Product();
         dto.setId(entity.getId());
