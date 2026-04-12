@@ -1,6 +1,7 @@
 plugins {
     id("org.springframework.boot")
     id("com.google.protobuf")
+    id("org.graalvm.buildtools.native")
 }
 
 dependencies {
@@ -9,7 +10,12 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
     runtimeOnly("org.postgresql:postgresql")
+
+    // [Resilience4j]
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
 
     // [Kafka/Debezium Outbox]
     implementation("com.fasterxml.jackson.core:jackson-databind")
