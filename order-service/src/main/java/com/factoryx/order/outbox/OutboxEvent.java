@@ -8,17 +8,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "outbox_events")
+@Table(name = "outbox")
 @Getter
 @Setter
 @NoArgsConstructor
-public class OutboxEventEntity {
+public class OutboxEvent {
 
     @Id
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     @Column(nullable = false)
     private String aggregateType;
@@ -32,10 +33,15 @@ public class OutboxEventEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String payload;
 
-    public OutboxEventEntity(String aggregateType, String aggregateId, String type, String payload) {
+    @Column(nullable = false)
+    private Instant createdAt;
+
+    public OutboxEvent(String aggregateType, String aggregateId, String type, String payload) {
+        this.id = UUID.randomUUID();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.type = type;
         this.payload = payload;
+        this.createdAt = Instant.now();
     }
 }
