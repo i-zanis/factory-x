@@ -1,5 +1,7 @@
 package com.factoryx.inventory.stock
 
+import com.factoryx.common.domain.Quantity
+import com.factoryx.common.domain.Sku
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -10,9 +12,10 @@ class InventoryService(
 ) {
 
     @Transactional
-    fun initializeStock(sku: String, initialQuantity: Int) {
+    fun initializeStock(skuValue: String, initialQuantity: Int) {
+        val sku = Sku(skuValue)
         if (!stockLevelRepository.existsById(sku)) {
-            val stockLevel = StockLevel(sku, initialQuantity)
+            val stockLevel = StockLevel(sku, Quantity(initialQuantity))
             val transactionLog = stockLevel.updateStock(initialQuantity)
             stockLevelRepository.save(stockLevel)
             stockTransactionLogRepository.save(transactionLog)
@@ -20,9 +23,10 @@ class InventoryService(
     }
 
     @Transactional
-    fun updateStock(sku: String, quantityChange: Int) {
+    fun updateStock(skuValue: String, quantityChange: Int) {
+        val sku = Sku(skuValue)
         val stockLevel =
-            stockLevelRepository.findById(sku).orElseThrow { IllegalArgumentException("SKU not found: $sku") }
+            stockLevelRepository.findById(sku).orElseThrow { IllegalArgumentException("SKU not found: $skuValue") }
         val transactionLog = stockLevel.updateStock(quantityChange)
         stockLevelRepository.save(stockLevel)
         stockTransactionLogRepository.save(transactionLog)

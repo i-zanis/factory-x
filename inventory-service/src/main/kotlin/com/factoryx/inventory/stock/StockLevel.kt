@@ -1,19 +1,24 @@
 package com.factoryx.inventory.stock
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import com.factoryx.common.domain.Quantity
+import com.factoryx.common.domain.Sku
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "stock_levels")
 class StockLevel(
     @Id
-    var sku: String,
-    var quantity: Int
+    @AttributeOverride(name = "value", column = Column(name = "sku"))
+    var sku: Sku,
+
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "quantity"))
+    var quantity: Quantity
 ) {
     fun updateStock(quantityChange: Int): StockTransactionLog {
-        this.quantity += quantityChange
+        val newQuantity = Quantity(this.quantity.value() + quantityChange)
+        this.quantity = newQuantity
         val reason = if (quantityChange > 0) "Stock replenished" else "Stock consumed"
-        return StockTransactionLog(sku = this.sku, quantityChange = quantityChange, reason = reason)
+        return StockTransactionLog(sku = this.sku.value(), quantityChange = quantityChange, reason = reason)
     }
 }
