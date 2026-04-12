@@ -15,8 +15,8 @@ class InventoryService(
     fun initializeStock(skuValue: String, initialQuantity: Int) {
         val sku = Sku(skuValue)
         if (!stockLevelRepository.existsById(sku)) {
-            val stockLevel = StockLevel(sku, Quantity(initialQuantity))
-            val transactionLog = stockLevel.updateStock(initialQuantity)
+            val stockLevel = StockLevel(sku, Quantity(0))
+            val transactionLog = stockLevel.replenish(Quantity(initialQuantity))
             stockLevelRepository.save(stockLevel)
             stockTransactionLogRepository.save(transactionLog)
         }
@@ -27,8 +27,15 @@ class InventoryService(
         val sku = Sku(skuValue)
         val stockLevel =
             stockLevelRepository.findById(sku).orElseThrow { IllegalArgumentException("SKU not found: $skuValue") }
-        val transactionLog = stockLevel.updateStock(quantityChange)
+
+        val transactionLog = if (quantityChange >= 0) {
+            stockLevel.replenish(Quantity(quantityChange))
+        } else {
+            stockLevel.consume(Quantity(-quantityChange))
+        }
+        
         stockLevelRepository.save(stockLevel)
+        // TODO(i-zanis): does this need to be moved to another layer?
         stockTransactionLogRepository.save(transactionLog)
     }
 }
