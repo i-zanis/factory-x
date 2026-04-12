@@ -14,7 +14,7 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
     @Override
     public void getProductPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver) {
         String sku = request.getSku();
-        
+
         productService.getProductBySku(sku)
                 .ifPresentOrElse(
                         product -> {
@@ -24,7 +24,6 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
                                     .setExists(true)
                                     .build();
                             responseObserver.onNext(response);
-                            responseObserver.onCompleted();
                         },
                         () -> {
                             PriceResponse response = PriceResponse.newBuilder()
@@ -33,8 +32,8 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
                                     .setExists(false)
                                     .build();
                             responseObserver.onNext(response);
-                            responseObserver.onCompleted();
                         }
                 );
+        responseObserver.onCompleted();
     }
 }
