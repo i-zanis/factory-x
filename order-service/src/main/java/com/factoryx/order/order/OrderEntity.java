@@ -1,10 +1,7 @@
 package com.factoryx.order.order;
 
-import com.factoryx.catalog.grpc.InternalCatalogServiceGrpc;
 import com.factoryx.common.domain.AuditInfo;
-import com.factoryx.order.outbox.OutboxEventEntity;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.factoryx.common.domain.Money;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,6 +36,9 @@ public class OrderEntity {
     @JoinColumn(name = "order_id")
     private List<OrderLineItemEntity> lineItems = new ArrayList<>();
 
+    @Column(nullable = false)
+    private double totalPrice;
+
     @Embedded
     private AuditInfo auditInfo = new AuditInfo();
 
@@ -48,22 +48,14 @@ public class OrderEntity {
         this.status = OrderStatus.PENDING;
     }
 
-    public void place(List<OrderLineItemEntity> items, InternalCatalogServiceGrpc.InternalCatalogServiceBlockingStub catalogStub) {
-        items.forEach(item -> item.validate(catalogStub));
+    public void place(List<OrderLineItemEntity> items, ProductPriceProvider priceProvider) {
+        items.forEach(item -> item.validate(priceProvider));
         this.lineItems = items;
-    }
 
-    // TODO(i-zanis): to think if this should move out of here
-    public OutboxEventEntity toOutboxEvent(ObjectMapper objectMapper) {
-        try {
-            return new OutboxEventEntity(
-                    "Order",
-                    this.id.toString(),
-                    "OrderCreated",
-                    objectMapper.writeValueAsString(this)
-            );
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize order for outbox event", e);
-        }
+        // Aggregate Responsibility: Calculate total
+        this.totalPrice = items.stream()
+                .map(OrderLineItemEntity::subtotal)
+                .reduce(Money.ZERO, Money::add)
+                .doubleValue();
     }
 }

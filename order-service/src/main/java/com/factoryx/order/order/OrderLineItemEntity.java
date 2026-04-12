@@ -1,11 +1,9 @@
 package com.factoryx.order.order;
 
-import com.factoryx.catalog.grpc.InternalCatalogServiceGrpc;
-import com.factoryx.catalog.grpc.PriceRequest;
-import com.factoryx.catalog.grpc.PriceResponse;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.factoryx.common.domain.Money;
+import com.factoryx.common.domain.Quantity;
+import com.factoryx.common.domain.Sku;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,34 +21,33 @@ public class OrderLineItemEntity {
     private UUID id = UUID.randomUUID();
 
     private UUID productId;
-    
-    private String sku;
 
-    private int quantity;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "sku"))
+    private Sku sku;
 
-    private double price; // Using double as per existing field, though BigDecimal is preferred for production
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "quantity"))
+    private Quantity quantity;
 
-    public OrderLineItemEntity(UUID productId, String sku, int quantity) {
+    // TODO(i-zanis): see if this should be @Embedded with @AO
+    private double price;
+
+    public OrderLineItemEntity(UUID productId, Sku sku, Quantity quantity) {
         this.productId = productId;
         this.sku = sku;
         this.quantity = quantity;
     }
 
-    public void validate(InternalCatalogServiceGrpc.InternalCatalogServiceBlockingStub catalogStub) {
-        if (this.quantity <= 0) {
-            throw new IllegalArgumentException("Quantity must be greater than zero");
+    public void validate(ProductPriceProvider priceProvider) {
+        ProductPriceProvider.PriceInfo info = priceProvider.getPriceInfo(this.sku);
+        if (!info.exists()) {
+            throw new IllegalArgumentException("SKU not found in catalog: " + this.sku.value());
         }
+        this.price = info.price().doubleValue();
+    }
 
-        PriceResponse catalogResponse = catalogStub.getProductPrice(
-                PriceRequest.newBuilder()
-                        .setSku(this.sku)
-                        .build()
-        );
-
-        if (!catalogResponse.getExists()) {
-            throw new IllegalArgumentException("SKU not found in catalog: " + this.sku);
-        }
-
-        this.price = catalogResponse.getPrice();
+    public Money subtotal() {
+        return Money.of(price).multiply(quantity.value());
     }
 }
