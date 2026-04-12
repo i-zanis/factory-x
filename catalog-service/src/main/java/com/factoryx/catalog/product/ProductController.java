@@ -43,6 +43,7 @@ public class ProductController implements ProductsApi {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // TODO(i-zanis): think where to put this
     private Product toDto(ProductEntity entity) {
         Product dto = new Product();
         dto.setId(entity.getId());

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+  namespace: factory-x
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: catalog-service
+  template:
+    metadata:
+      labels:
+        app: catalog-service
+    spec:
+      containers:
+        - name: catalog-service
+          image: gcr.io/factory-x/catalog-service:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://postgres:5432/factoryx
+            - name: SPRING_DATASOURCE_USERNAME
+              value: factory
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+  namespace: factory-x
+spec:
+  selector:
+    app: catalog-service
+  ports:
+    - port: 8081
+      targetPort: 8081
+      name: http
+    - port: 9090
+      targetPort: 9090
+      name: grpc

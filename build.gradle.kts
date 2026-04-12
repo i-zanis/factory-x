@@ -1,5 +1,3 @@
-import org.gradle.jvm.toolchain.JavaLanguageVersion
-
 plugins {
     id("java")
     id("org.springframework.boot") version "3.4.0" apply false
@@ -42,4 +40,5 @@ subprojects {
     project.extra["grpcSpringBootVersion"] = "3.1.0"
     project.extra["protobufVersion"] = "3.25.5"
     project.extra["openapiVersion"] = "7.10.0"
+    project.extra["commonsLangVersion"] = "3.17.0"
 }
