@@ -19,8 +19,8 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
                 .ifPresentOrElse(
                         product -> {
                             PriceResponse response = PriceResponse.newBuilder()
-                                    .setSku(product.getSku())
-                                    .setPrice(product.getPrice())
+                                    .setSku(product.getSku().value())
+                                    .setPrice(product.getPrice().doubleValue())
                                     .setExists(true)
                                     .build();
                             responseObserver.onNext(response);
