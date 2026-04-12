@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OrderLineItemEntity {
+public class OrderLineItem {
 
     @Id
     private UUID id = UUID.randomUUID();
@@ -30,10 +30,11 @@ public class OrderLineItemEntity {
     @AttributeOverride(name = "value", column = @Column(name = "quantity"))
     private Quantity quantity;
 
-    // TODO(i-zanis): see if this should be @Embedded with @AO
-    private double price;
+    @Embedded
+    @AttributeOverride(name = "amount", column = @Column(name = "price"))
+    private Money price;
 
-    public OrderLineItemEntity(UUID productId, Sku sku, Quantity quantity) {
+    public OrderLineItem(UUID productId, Sku sku, Quantity quantity) {
         this.productId = productId;
         this.sku = sku;
         this.quantity = quantity;
@@ -44,10 +45,10 @@ public class OrderLineItemEntity {
         if (!info.exists()) {
             throw new IllegalArgumentException("SKU not found in catalog: " + this.sku.value());
         }
-        this.price = info.price().doubleValue();
+        this.price = info.price();
     }
 
     public Money subtotal() {
-        return Money.of(price).multiply(quantity.value());
+        return price.multiply(quantity.value());
     }
 }
