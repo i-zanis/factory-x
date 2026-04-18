@@ -73,6 +73,11 @@ public class AuditInfo {
         return createdAt.isAfter(instant);
     }
 
+    public boolean isUpdatedAfter(@NonNull Instant instant) {
+        if (updatedAt == null) return false;
+        return updatedAt.isAfter(instant);
+    }
+
     public Duration timeSinceCreation() {
         if (createdAt == null) return Duration.ZERO;
         return Duration.between(createdAt, Instant.now());
@@ -81,5 +86,37 @@ public class AuditInfo {
     public Duration timeSinceLastUpdate() {
         if (updatedAt == null) return Duration.ZERO;
         return Duration.between(updatedAt, Instant.now());
+    }
+
+    public boolean isModified() {
+        if (createdAt == null || updatedAt == null) return false;
+        return updatedAt.isAfter(createdAt);
+    }
+
+    public void stampCreatedBy(String user) {
+        if (this.createdBy == null) {
+            this.createdBy = user;
+            if (this.createdAt == null) {
+                this.createdAt = Instant.now();
+            }
+        }
+    }
+
+    public void stampUpdatedBy(String user) {
+        this.updatedBy = user;
+        touch();
+    }
+
+    // TODO(i-zanis): should I pass the Spring Sec to get the details here or could it be a violation.
+    public void applySystemStamp() {
+        updatedBy = "SYSTEM";
+        touch();
+    }
+
+    public List<String> toAuditTrail() {
+        return List.of(
+            "Created by: " + (createdBy != null ? createdBy : "Unknown") + " at " + createdAt,
+            "Updated by: " + (updatedBy != null ? updatedBy : "Unknown") + " at " + updatedAt
+        );
     }
 }
