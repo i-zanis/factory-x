@@ -4,6 +4,7 @@ import com.factoryx.common.domain.Quantity
 import com.factoryx.common.domain.Sku
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import kotlin.math.abs
 
 @Service
 class InventoryService(
@@ -14,8 +15,7 @@ class InventoryService(
     fun initializeStock(skuValue: String, initialQuantity: Int) {
         val sku = Sku(skuValue)
         if (!stockLevelRepository.existsById(sku)) {
-            val stockLevel = StockLevel(sku, Quantity(0))
-            stockLevel.replenish(Quantity(initialQuantity))
+            val stockLevel = StockLevel.create(sku, Quantity.of(initialQuantity))
             stockLevelRepository.save(stockLevel)
         }
     }
@@ -27,12 +27,11 @@ class InventoryService(
             stockLevelRepository.findById(sku).orElseThrow { IllegalArgumentException("SKU not found: $skuValue") }
 
         if (quantityChange >= 0) {
-            stockLevel.replenish(Quantity(quantityChange))
+            stockLevel.replenish(Quantity.of(quantityChange))
         } else {
-            stockLevel.consume(Quantity(quantityChange))
+            stockLevel.consume(Quantity.of(abs(quantityChange)))
         }
         
         stockLevelRepository.save(stockLevel)
     }
 }
-
