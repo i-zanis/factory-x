@@ -4,48 +4,45 @@ import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Quantity;
 import com.factoryx.common.domain.Sku;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "order_line_items")
 @Getter
-@Setter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderLineItem {
 
     @Id
-    private UUID id = UUID.randomUUID();
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    private UUID productId;
+    @Column(nullable = false)
+    @Convert(converter = ProductIdConverter.class)
+    private ProductId productId;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "sku"))
     private Sku sku;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "quantity"))
     private Quantity quantity;
 
     @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "price"))
     private Money price;
 
-    public OrderLineItem(UUID productId, Sku sku, Quantity quantity) {
+    public OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
+        if (productId == null) throw new IllegalArgumentException("Product ID required");
+        if (sku == null) throw new IllegalArgumentException("SKU required");
+        if (quantity == null || quantity.isZero()) throw new IllegalArgumentException("Valid quantity required");
+        if (price == null || price.isZero()) throw new IllegalArgumentException("Valid price required");
+
         this.productId = productId;
         this.sku = sku;
         this.quantity = quantity;
-    }
-
-    public void validate(ProductPriceProvider priceProvider) {
-        ProductPriceProvider.PriceInfo info = priceProvider.getPriceInfo(this.sku);
-        if (!info.exists()) {
-            throw new IllegalArgumentException("SKU not found in catalog: " + this.sku.value());
-        }
-        this.price = info.price();
+        this.price = price;
     }
 
     public Money subtotal() {
