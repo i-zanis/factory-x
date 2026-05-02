@@ -18,22 +18,31 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final ProductPriceProvider priceProvider;
+    private final ProductPriceProvider priceProvider; // ACL interface
 
     @Transactional
     @CircuitBreaker(name = "catalogService", fallbackMethod = "placeOrderFallback")
     public Order placeOrder(UUID customerId, List<OrderLineItemRequest> requests) {
-        Order order = new Order(customerId);
+        Order order = Order.create(new CustomerId(customerId));
 
-        List<OrderLineItem> items = requests.stream()
-                .map(req -> new OrderLineItem(
-                        req.productId(),
-                        new Sku(req.sku()),
-                        new Quantity(req.quantity())
-                ))
-                .collect(Collectors.toList());
+        for (OrderLineItemRequest req : requests) {
+            Sku sku = new Sku(req.sku());
+            ProductPriceProvider.PriceInfo priceInfo = priceProvider.getPriceInfo(sku);
+            
+            if (!priceInfo.exists()) {
+                throw new IllegalArgumentException("SKU not found in catalog: " + sku.value());
+            }
 
-        order.place(items, priceProvider);
+            OrderLineItem item = new OrderLineItem(
+                    new ProductId(req.productId()),
+                    sku,
+                    Quantity.of(req.quantity()),
+                    priceInfo.price()
+            );
+            order.addLineItem(item);
+        }
+
+        order.place();
 
         return orderRepository.save(order);
     }
@@ -42,7 +51,4 @@ public class OrderService {
         log.error("Circuit breaker 'catalogService' triggered during placeOrder for customer: {}", customerId, t);
         throw new RuntimeException("Catalog service is currently unavailable. Please try again later.", t);
     }
-
-    // TODO(i-zanis): think if needs moving to new file
-    public record OrderLineItemRequest(UUID productId, String sku, int quantity) {}
 }
