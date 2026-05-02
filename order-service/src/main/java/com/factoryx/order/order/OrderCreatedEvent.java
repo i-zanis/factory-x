@@ -1,8 +1,8 @@
 package com.factoryx.order.order;
 
-import com.factoryx.order.domain.Money;
-import com.factoryx.order.domain.Quantity;
-import com.factoryx.order.domain.Sku;
+import com.factoryx.common.domain.Money;
+import com.factoryx.common.domain.Quantity;
+import com.factoryx.common.domain.Sku;
 
 import java.util.List;
 import java.util.UUID;

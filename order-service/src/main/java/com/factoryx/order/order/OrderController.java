@@ -29,6 +29,6 @@ public class OrderController {
         return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(customerId));
     }
 
-    public record PlaceOrderRequest(UUID customerId, List<OrderService.OrderLineItemRequest> items) {
+    public record PlaceOrderRequest(UUID customerId, List<OrderLineItemRequest> items) {
     }
 }
