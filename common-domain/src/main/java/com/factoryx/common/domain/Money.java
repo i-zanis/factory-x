@@ -1,6 +1,7 @@
 package com.factoryx.common.domain;
 
 import jakarta.persistence.Embeddable;
+import org.springframework.util.Assert;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -39,14 +40,12 @@ public record Money(BigDecimal amount) {
 
     public Money subtract(Money other) {
         validateSameCurrency(other);
-        if (this.amount.compareTo(other.amount()) < 0) {
-            throw new IllegalArgumentException("Cannot subtract to negative money");
-        }
+        Assert.isTrue(this.amount.compareTo(other.amount()) >= 0, "Cannot subtract to negative money");
         return new Money(amount.subtract(other.amount()), currency);
     }
 
     public Money divide(int divisor) {
-        if (divisor <= 0) throw new IllegalArgumentException("Divisor must be greater than zero");
+        Assert.isTrue(divisor > 0, "Divisor must be greater than zero");
         return new Money(amount.divide(BigDecimal.valueOf(divisor), 2, RoundingMode.HALF_UP), currency);
     }
 
