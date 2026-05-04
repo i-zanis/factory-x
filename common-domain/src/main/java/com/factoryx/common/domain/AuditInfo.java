@@ -5,7 +5,6 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -14,10 +13,10 @@ import org.springframework.lang.NonNull;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 @Embeddable
 @Getter
-@Setter
 @NoArgsConstructor
 public class AuditInfo {
 
@@ -40,7 +39,7 @@ public class AuditInfo {
 
     @Column(updatable = false)
     private String deletedBy;
-    
+
     @Version
     private Integer version;
 
@@ -107,7 +106,7 @@ public class AuditInfo {
         touch();
     }
 
-    // TODO(i-zanis): should I pass the Spring Sec to get the details here or could it be a violation.
+    // TODO(i-zanis): change when spring sec
     public void applySystemStamp() {
         updatedBy = "SYSTEM";
         touch();
