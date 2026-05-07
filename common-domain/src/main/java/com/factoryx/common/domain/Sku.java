@@ -1,11 +1,9 @@
 package com.factoryx.common.domain;
 
 import jakarta.persistence.Embeddable;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Collections;
+import static org.apache.commons.lang3.StringUtils.normalizeSpace;
+import static org.springframework.util.StringUtils.hasText;
 
 @Embeddable
 public record Sku(String value) {
@@ -13,11 +11,13 @@ public record Sku(String value) {
     private static final String SKU_PATTERN = "^[A-Z]{3}-\\d{4}$";
 
     public Sku {
-        value = StringUtils.trimToEmpty(value);
-
-        // TODO to replace with spring validation
-        if (value.isEmpty()) throw new IllegalArgumentException("SKU required");
-        if (!value.matches(SKU_PATTERN)) throw new IllegalArgumentException("Invalid SKU format: " + value);
+        if (!hasText(value)) {
+            throw new DomainRuleViolation("SKU is required");
+        }
+        value = normalizeSpace(value).toUpperCase();
+        if (!value.matches(SKU_PATTERN)) {
+            throw new DomainRuleViolation("Invalid SKU format. Expected AAA-0000");    
+        }
     }
 
     public String category() {
