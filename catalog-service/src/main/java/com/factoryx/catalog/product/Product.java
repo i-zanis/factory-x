@@ -59,7 +59,14 @@ public class Product extends AbstractAggregateRoot<Product> {
     }
 
     public void describe(String description) {
-        this.description = description;
+        if (hasText(description)) {
+            this.description = normalizeSpace(description);
+            if (!isAsciiPrintable(this.description)) {
+                throw new DomainRuleViolation("Description contains invalid characters");
+            }
+        } else {
+            this.description = null;
+        }
     }
 
     public void updatePrice(Money newPrice) {
@@ -72,15 +79,21 @@ public class Product extends AbstractAggregateRoot<Product> {
     }
 
     public void applyDiscount(int percent) {
-        if (percent <= 0 || percent > 50) throw new IllegalArgumentException("Discount 1-50% only");
-
-        double multiplier = (100.0 - percent) / 100.0;
-        Money discountedPrice = Money.of(this.price.amount().multiply(BigDecimal.valueOf(multiplier)));
-        updatePrice(discountedPrice);
+        if (percent <= 0 || percent > 50) {
+            throw new DomainRuleViolation("Discount must be between 1% and 50%");
+        }
+        // TODO (Review): Is applying discount directly on entity safe without historical tracking?
+        // TODO(i-zanis): Might need a PriceHistory entity in the future.
+        updatePrice(this.price.discount(percent));
     }
 
     public void rename(String name) {
-        if (StringUtils.isBlank(name)) throw new IllegalArgumentException("Product name cannot be empty");
-        this.name = name;
+        if (!hasText(name)) {
+            throw new DomainRuleViolation("Product name cannot be empty");
+        }
+        this.name = normalizeSpace(name);
+        if (!isAsciiPrintable(this.name)) {
+            throw new DomainRuleViolation("Product name contains invalid characters");
+        }
     }
 }
