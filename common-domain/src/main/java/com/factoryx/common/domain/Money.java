@@ -9,21 +9,26 @@ import java.math.RoundingMode;
 import static java.util.Objects.requireNonNullElse;
 
 @Embeddable
-public record Money(BigDecimal amount) {
-    public static final Money ZERO = new Money(BigDecimal.ZERO);
+public record Money(BigDecimal amount, String currency) implements Comparable<Money> {
+    public static final Money ZERO = new Money(BigDecimal.ZERO, "USD");
 
     public Money {
         amount = requireNonNullElse(amount, BigDecimal.ZERO)
                 .setScale(2, RoundingMode.HALF_UP);
+        currency = requireNonNullElse(currency, "USD");
         if (amount.signum() < 0) throw new IllegalArgumentException("Negative money forbidden");
     }
 
     public static Money of(double value) {
-        return new Money(BigDecimal.valueOf(value));
+        return new Money(BigDecimal.valueOf(value), "USD");
     }
 
     public static Money of(BigDecimal value) {
-        return new Money(value);
+        return new Money(value, "USD");
+    }
+
+    public static Money of(BigDecimal value, String currency) {
+        return new Money(value, currency);
     }
 
     public boolean isZero() {
@@ -31,11 +36,7 @@ public record Money(BigDecimal amount) {
     }
 
     public Money multiply(int quantity) {
-        return new Money(amount.multiply(BigDecimal.valueOf(quantity)));
-    }
-
-    public Money add(Money other) {
-        return new Money(amount.add(other.amount()));
+        return new Money(amount.multiply(BigDecimal.valueOf(quantity)), currency);
     }
 
     public Money subtract(Money other) {
@@ -119,8 +120,15 @@ public record Money(BigDecimal amount) {
         return amount.multiply(BigDecimal.valueOf(100)).longValue();
     }
 
-    public String withSymbol() {
-        return "$" + amount.toPlainString();
+    public String format(Locale locale) {
+        NumberFormat format = NumberFormat.getCurrencyInstance(locale);
+        try {
+            format.setCurrency(Currency.getInstance(currency));
+            // TODO(i-zanis): domain exception?
+        } catch (IllegalArgumentException e) {
+            // fallback if invalid currency code
+        }
+        return format.format(amount);
     }
 
     public Money[] allocate(int parts) {
