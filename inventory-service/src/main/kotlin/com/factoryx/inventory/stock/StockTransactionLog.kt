@@ -7,6 +7,7 @@ import java.util.*
 
 @Entity
 @Table(name = "stock_transaction_logs")
+// TODO(i-zanis): DDD Violation - Anemic model
 class StockTransactionLog(
     @Id
     var id: UUID = UUID.randomUUID(),

@@ -3,9 +3,9 @@ plugins {
     id("org.springframework.boot") version "3.4.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
     id("org.graalvm.buildtools.native") version "0.10.3" apply false
-    kotlin("jvm") version "2.0.21" apply false
-    kotlin("plugin.spring") version "2.0.21" apply false
-    kotlin("plugin.jpa") version "2.0.21" apply false
+    kotlin("jvm") version "2.1.0" apply false
+    kotlin("plugin.spring") version "2.1.0" apply false
+    kotlin("plugin.jpa") version "2.1.0" apply false
     id("org.openapi.generator") version "7.10.0" apply false
     id("com.google.protobuf") version "0.9.4" apply false
 }
@@ -41,8 +41,9 @@ subprojects {
 
     // Common properties for subprojects
     project.extra["grpcVersion"] = "1.69.0"
-    project.extra["grpcSpringBootVersion"] = "3.1.0"
+    project.extra["grpcSpringBootVersion"] = "3.1.0.RELEASE"
     project.extra["protobufVersion"] = "3.25.5"
     project.extra["openapiVersion"] = "7.10.0"
     project.extra["commonsLangVersion"] = "3.17.0"
+    project.extra["lombok.version"] = "1.18.36"
 }
