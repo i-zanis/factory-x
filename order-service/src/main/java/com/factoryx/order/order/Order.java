@@ -81,23 +81,34 @@ public class Order extends AbstractAggregateRoot<Order> {
         this.lineItems = items;
 
         this.totalPrice = items.stream()
+        this.totalPrice = this.lineItems.stream()
                 .map(OrderLineItem::subtotal)
                 .reduce(Money.ZERO, Money::add);
 
         registerEvent(new OrderCreatedEvent(this));
     }
 
-    public void complete() {
-        if (this.status != OrderStatus.PENDING) {
-            throw new IllegalStateException("Only PENDING orders can be completed");
+    public void approve() {
+        if (this.status == OrderStatus.PENDING) {
+            this.status = OrderStatus.APPROVED;
+        } else {
+            throw new DomainRuleViolation("Cannot approve order in status " + this.status);
         }
-        this.status = OrderStatus.COMPLETED;
     }
 
-    public void cancel() {
-        if (this.status == OrderStatus.COMPLETED) {
-            throw new IllegalStateException("Cannot cancel a COMPLETED order");
+    public void reject() {
+        if (this.status == OrderStatus.PENDING) {
+            this.status = OrderStatus.REJECTED;
+        } else {
+            throw new DomainRuleViolation("Cannot reject order in status " + this.status);
         }
-        this.status = OrderStatus.CANCELLED;
+    }
+
+    public void fulfill() {
+        if (this.status == OrderStatus.APPROVED) {
+            this.status = OrderStatus.FULFILLED;
+        } else {
+            throw new DomainRuleViolation("Cannot fulfill order in status " + this.status);
+        }
     }
 }
