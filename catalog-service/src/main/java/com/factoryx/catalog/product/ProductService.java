@@ -1,7 +1,9 @@
 package com.factoryx.catalog.product;
 
+import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Sku;
+import java.util.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +27,15 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public Optional<Product> getProductBySku(String skuValue) {
+    public Optional<Product> getProductBySku(String skuValue) throws Domain{
         return productRepository.findBySku(new Sku(skuValue));
     }
 
     @Transactional
     public Product createProduct(String skuValue, String name, double priceValue) {
-        var newProduct = Product.create(new Sku(skuValue), name, Money.of(priceValue));
-        return productRepository.save(newProduct);
+        Sku sku = new Sku(skuValue);
+        Money price = Money.of(java.math.BigDecimal.valueOf(priceValue));
+        Product product = Product.create(sku, name, price);
+        return productRepository.save(product);
     }
 }
