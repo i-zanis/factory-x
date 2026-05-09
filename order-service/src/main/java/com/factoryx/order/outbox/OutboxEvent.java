@@ -6,7 +6,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,8 +13,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "outbox")
 @Getter
-@Setter
 @NoArgsConstructor
+// TODO(i-zanis): DDD Violation - Anemic model
 public class OutboxEvent {
 
     @Id
