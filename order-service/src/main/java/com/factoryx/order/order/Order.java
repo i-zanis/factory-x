@@ -22,11 +22,13 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class Order extends AbstractAggregateRoot<Order> {
 
-    @Id
-    private UUID id;
+    @EmbeddedId
+    @AttributeOverride(name = "value", column = @Column(name = "id"))
+    private OrderId id;
 
-    @Column(nullable = false)
-    private UUID customerId;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "customer_id", nullable = false))
+    private CustomerId customerId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -53,13 +55,24 @@ public class Order extends AbstractAggregateRoot<Order> {
         this.auditInfo = auditInfo != null ? auditInfo : new AuditInfo();
     }
 
-    public static Order create(UUID customerId) {
-        return new Order(UUID.randomUUID(), customerId, OrderStatus.PENDING, new AuditInfo());
+    public static Order create(CustomerId customerId) {
+        return new Order(OrderId.generate(), customerId, OrderStatus.PENDING, new AuditInfo());
     }
 
-    public void place(List<OrderLineItem> items, ProductPriceProvider priceProvider) {
+    public List<OrderLineItem> getLineItems() {
+        return Collections.unmodifiableList(lineItems);
+    }
+
+    public void addLineItem(OrderLineItem item) {
         if (this.status != OrderStatus.PENDING) {
-            throw new IllegalStateException("Order can only be placed from PENDING status");
+            throw new DomainRuleViolation("Cannot add items to " + this.status + " order");
+        }
+        this.lineItems.add(item);
+    }
+
+    public OrderCreatedEvent place() {
+        if (this.status != OrderStatus.PENDING) {
+            throw new DomainRuleViolation("Order already " + this.status);
         }
         // TODO(i-zanis): need to replace this with something more idiomatic Apache/Spring etc
         if (items == null || items.isEmpty()) throw new IllegalArgumentException("Order items cannot be empty");
