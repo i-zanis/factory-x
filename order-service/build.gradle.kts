@@ -24,6 +24,7 @@ dependencies {
 
     // [Kafka/Debezium Outbox]
     implementation("com.fasterxml.jackson.core:jackson-databind")
+    implementation("org.springframework.kafka:spring-kafka")
 
     // [gRPC Client]
     implementation("net.devh:grpc-spring-boot-starter:${project.extra["grpcSpringBootVersion"]}")

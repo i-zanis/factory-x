@@ -119,6 +119,10 @@ public record Money(BigDecimal amount) {
         return amount.multiply(BigDecimal.valueOf(100)).longValue();
     }
 
+    public String withSymbol() {
+        return "$" + amount.toPlainString();
+    }
+
     public Money[] allocate(int parts) {
         if (parts <= 0) throw new IllegalArgumentException("Parts must be greater than zero");
         Money[] allocation = new Money[parts];
