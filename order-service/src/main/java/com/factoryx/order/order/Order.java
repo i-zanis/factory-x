@@ -75,12 +75,10 @@ public class Order extends AbstractAggregateRoot<Order> {
             throw new DomainRuleViolation("Order already " + this.status);
         }
         // TODO(i-zanis): need to replace this with something more idiomatic Apache/Spring etc
-        if (items == null || items.isEmpty()) throw new IllegalArgumentException("Order items cannot be empty");
-        
-        items.forEach(item -> item.validate(priceProvider));
-        this.lineItems = items;
-
-        this.totalPrice = items.stream()
+        // TODO(i-zanis): DDD Violation - Domain entity should not depend on Spring Framework (CollectionUtils). Use pure Java.
+        if (CollectionUtils.isEmpty(this.lineItems)) {
+            throw new DomainRuleViolation("Cannot place empty order");
+        }
         this.totalPrice = this.lineItems.stream()
                 .map(OrderLineItem::subtotal)
                 .reduce(Money.ZERO, Money::add);

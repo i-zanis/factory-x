@@ -45,5 +45,5 @@ subprojects {
     project.extra["protobufVersion"] = "3.25.5"
     project.extra["openapiVersion"] = "7.10.0"
     project.extra["commonsLangVersion"] = "3.17.0"
-    project.extra["lombok.version"] = "1.18.36"
+    project.extra["lombok.version"] = "1.18.38"
 }
