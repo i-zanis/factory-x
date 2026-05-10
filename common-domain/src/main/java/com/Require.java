@@ -1,3 +1,6 @@
+package com;
+
+import com.factoryx.common.domain.DomainRuleViolation;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
@@ -11,16 +14,8 @@ public final class Require {
     private Require() {
     }
 
-    public static <T> T nonNull(T value, String message) {
+    public static <T> T notNull(T value, String message) {
         if (value == null) {
-            throw argumentFailure(message);
-        }
-
-        return value;
-    }
-
-    public static String notEmpty(String value, String message) {
-        if (value == null || value.isEmpty()) {
             throw argumentFailure(message);
         }
 
@@ -40,7 +35,7 @@ public final class Require {
             throw argumentFailure(message);
         }
 
-        nonNull(value, message);
+        notNull(value, message);
 
         if (value.length() < min) {
             throw argumentFailure(message);
@@ -54,25 +49,9 @@ public final class Require {
             throw argumentFailure(message);
         }
 
-        nonNull(value, message);
+        notNull(value, message);
 
         if (value.length() > max) {
-            throw argumentFailure(message);
-        }
-
-        return value;
-    }
-
-    public static String lengthBetween(String value, int min, int max, String message) {
-        if (min < 0 || max < min) {
-            throw argumentFailure(message);
-        }
-
-        nonNull(value, message);
-
-        int length = value.length();
-
-        if (length < min || length > max) {
             throw argumentFailure(message);
         }
 
@@ -163,7 +142,12 @@ public final class Require {
         return value;
     }
 
-    public static int betweenInclusive(int value, int min, int max, String message) {
+    public static int in(int value, int min, int max, String message) {
+        in((long) value, (long) min, (long) max, message);
+        return value;
+    }
+
+    public static long in(long value, long min, long max, String message) {
         if (max < min || value < min || value > max) {
             throw argumentFailure(message);
         }
@@ -171,34 +155,10 @@ public final class Require {
         return value;
     }
 
-    public static long betweenInclusive(long value, long min, long max, String message) {
-        if (max < min || value < min || value > max) {
-            throw argumentFailure(message);
-        }
-
-        return value;
-    }
-
-    public static int betweenExclusive(int value, int min, int max, String message) {
-        if (max <= min || value <= min || value >= max) {
-            throw argumentFailure(message);
-        }
-
-        return value;
-    }
-
-    public static long betweenExclusive(long value, long min, long max, String message) {
-        if (max <= min || value <= min || value >= max) {
-            throw argumentFailure(message);
-        }
-
-        return value;
-    }
-
-    public static <T extends Comparable<? super T>> T betweenInclusive(T value, T min, T max, String message) {
-        nonNull(value, message);
-        nonNull(min, message);
-        nonNull(max, message);
+    public static <T extends Comparable<? super T>> T in(T value, T min, T max, String message) {
+        notNull(value, message);
+        notNull(min, message);
+        notNull(max, message);
 
         if (min.compareTo(max) > 0 || value.compareTo(min) < 0 || value.compareTo(max) > 0) {
             throw argumentFailure(message);
@@ -207,21 +167,9 @@ public final class Require {
         return value;
     }
 
-    public static <T extends Comparable<? super T>> T betweenExclusive(T value, T min, T max, String message) {
-        nonNull(value, message);
-        nonNull(min, message);
-        nonNull(max, message);
-
-        if (min.compareTo(max) >= 0 || value.compareTo(min) <= 0 || value.compareTo(max) >= 0) {
-            throw argumentFailure(message);
-        }
-
-        return value;
-    }
-
     public static String matches(String value, Pattern pattern, String message) {
-        nonNull(value, message);
-        nonNull(pattern, message);
+        notNull(value, message);
+        notNull(pattern, message);
 
         if (!pattern.matcher(value).matches()) {
             throw argumentFailure(message);
@@ -231,7 +179,7 @@ public final class Require {
     }
 
     public static String matches(String value, String regex, String message) {
-        nonNull(regex, message);
+        notNull(regex, message);
 
         try {
             return matches(value, Pattern.compile(regex), message);
@@ -281,12 +229,8 @@ public final class Require {
         }
     }
 
-    private static DomainArgumentException argumentFailure(String message) {
-        return new DomainArgumentException(message);
-    }
-
-    private static DomainArgumentException argumentFailure(String message, Throwable cause) {
-        return new DomainArgumentException(message, cause);
+    private static DomainRuleViolation argumentFailure(String message) {
+        return new DomainRuleViolation(message);
     }
 
     private static DomainStateException stateFailure(String message) {
@@ -300,17 +244,6 @@ public final class Require {
         }
 
         public DomainPreconditionException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    public static final class DomainArgumentException extends DomainPreconditionException {
-
-        public DomainArgumentException(String message) {
-            super(message);
-        }
-
-        public DomainArgumentException(String message, Throwable cause) {
             super(message, cause);
         }
     }
