@@ -9,7 +9,6 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.lang.NonNull;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -55,24 +54,26 @@ public class AuditInfo {
         return deletedAt != null;
     }
 
-    public boolean markDeleted(String user) {
-        if (isDeleted()) return false;
+    public void markDeleted(String user) {
+        Require.text(user, "User performing deletion");
         deletedAt = Instant.now();
         deletedBy = user;
-        return true;
     }
 
-    public boolean isCreatedBefore(@NonNull Instant instant) {
+    public boolean isCreatedBefore(Instant instant) {
+        Require.nonNull(instant, "Instant for comparison");
         if (createdAt == null) return false;
         return createdAt.isBefore(instant);
     }
 
-    public boolean isCreatedAfter(@NonNull Instant instant) {
+    public boolean isCreatedAfter(Instant instant) {
+        Require.nonNull(instant, "Instant for comparison");
         if (createdAt == null) return false;
         return createdAt.isAfter(instant);
     }
 
-    public boolean isUpdatedAfter(@NonNull Instant instant) {
+    public boolean isUpdatedAfter(Instant instant) {
+        Require.nonNull(instant, "Instant for comparison");
         if (updatedAt == null) return false;
         return updatedAt.isAfter(instant);
     }

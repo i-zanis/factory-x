@@ -1,6 +1,8 @@
 package com;
 
 import com.factoryx.common.domain.DomainRuleViolation;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
@@ -9,10 +11,8 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Require {
-
-    private Require() {
-    }
 
     public static <T> T notNull(T value, String message) {
         if (value == null) {

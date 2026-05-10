@@ -21,7 +21,7 @@ class OrderCreatedListener(
             val event = objectMapper.readValue(message, DebeziumEvent::class.java)
             val after = event.payload.after
 
-            // TODO(i-zanis): prob need to change to Enum.valueOf
+            // TODO(i-zanis): change to enum
             if ("OrderCreated" == after.type) {
                 val orderData = objectMapper.readValue(after.payload, OrderCreatedDto::class.java)
                 val orderId = orderData.id

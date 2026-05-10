@@ -14,7 +14,6 @@ import java.util.UUID;
 @Table(name = "outbox")
 @Getter
 @NoArgsConstructor
-// TODO(i-zanis): DDD Violation - Anemic model
 public class OutboxEvent {
 
     @Id

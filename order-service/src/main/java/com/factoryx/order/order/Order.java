@@ -1,7 +1,9 @@
 package com.factoryx.order.order;
 
 import com.factoryx.common.domain.AuditInfo;
+import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
+import com.factoryx.common.domain.Require;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,8 +13,8 @@ import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -39,18 +41,14 @@ public class Order extends AbstractAggregateRoot<Order> {
     private List<OrderLineItem> lineItems = new ArrayList<>();
 
     @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "total_price"))
     private Money totalPrice;
 
     @Embedded
     private AuditInfo auditInfo;
 
-    private Order(UUID id, UUID customerId, OrderStatus status, AuditInfo auditInfo) {
-        if (id == null) throw new IllegalArgumentException("Order ID required");
-        if (customerId == null) throw new IllegalArgumentException("Customer ID required");
-
-        this.id = id;
-        this.customerId = customerId;
+    private Order(OrderId id, CustomerId customerId, OrderStatus status, AuditInfo auditInfo) {
+        this.id = Require.nonNull(id, "Order ID");
+        this.customerId = Require.nonNull(customerId, "Customer ID");
         this.status = status != null ? status : OrderStatus.PENDING;
         this.auditInfo = auditInfo != null ? auditInfo : new AuditInfo();
     }
@@ -74,16 +72,16 @@ public class Order extends AbstractAggregateRoot<Order> {
         if (this.status != OrderStatus.PENDING) {
             throw new DomainRuleViolation("Order already " + this.status);
         }
-        // TODO(i-zanis): need to replace this with something more idiomatic Apache/Spring etc
-        // TODO(i-zanis): DDD Violation - Domain entity should not depend on Spring Framework (CollectionUtils). Use pure Java.
-        if (CollectionUtils.isEmpty(this.lineItems)) {
-            throw new DomainRuleViolation("Cannot place empty order");
-        }
+
+        // Answer: Domain entities must be framework-agnostic. lineItems is initialized to ArrayList, so it's never null. Native .isEmpty() is the pure Java way.
+        Require.notEmpty(this.lineItems, "Cannot place empty order");
         this.totalPrice = this.lineItems.stream()
                 .map(OrderLineItem::subtotal)
                 .reduce(Money.ZERO, Money::add);
 
-        registerEvent(new OrderCreatedEvent(this));
+        OrderCreatedEvent event = new OrderCreatedEvent(this);
+        registerEvent(event);
+        return event;
     }
 
     public void approve() {
