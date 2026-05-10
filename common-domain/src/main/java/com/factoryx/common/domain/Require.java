@@ -20,16 +20,16 @@ public final class Require {
         return messageOrName + defaultSuffix;
     }
 
-    public static <T> T notNull(T value, String messageOrName) {
+    public static <T> T nonNull(T value, String messageOrName) {
         if (value == null) {
-            throw argumentFailure(buildMessage(messageOrName, " cannot be null"));
+            throw argumentFailure(buildMessage(messageOrName, " is required"));
         }
         return value;
     }
 
     public static String text(String value, String messageOrName) {
         if (StringUtils.isBlank(value)) {
-            throw argumentFailure(buildMessage(messageOrName, " cannot be blank"));
+            throw argumentFailure(buildMessage(messageOrName, " is required and cannot be blank"));
         }
         return value;
     }
@@ -38,7 +38,7 @@ public final class Require {
         if (min < 0) {
             throw argumentFailure(message);
         }
-        notNull(value, message);
+        nonNull(value, message);
         if (value.length() < min) {
             throw argumentFailure(message);
         }
@@ -49,7 +49,7 @@ public final class Require {
         if (max < 0) {
             throw argumentFailure(message);
         }
-        notNull(value, message);
+        nonNull(value, message);
         if (value.length() > max) {
             throw argumentFailure(message);
         }
@@ -60,7 +60,7 @@ public final class Require {
         if (min < 0 || max < min) {
             throw argumentFailure(message);
         }
-        notNull(value, message);
+        nonNull(value, message);
         int length = value.length();
         if (length < min || length > max) {
             throw argumentFailure(message);
@@ -70,21 +70,21 @@ public final class Require {
 
     public static <T extends Collection<?>> T notEmpty(T value, String messageOrName) {
         if (value == null || value.isEmpty()) {
-            throw argumentFailure(buildMessage(messageOrName, " cannot be empty"));
+            throw argumentFailure(buildMessage(messageOrName, " is required and cannot be empty"));
         }
         return value;
     }
 
     public static <T extends Map<?, ?>> T notEmpty(T value, String messageOrName) {
         if (value == null || value.isEmpty()) {
-            throw argumentFailure(buildMessage(messageOrName, " cannot be empty"));
+            throw argumentFailure(buildMessage(messageOrName, " is required and cannot be empty"));
         }
         return value;
     }
 
     public static <T> T[] notEmpty(T[] value, String messageOrName) {
         if (value == null || value.length == 0) {
-            throw argumentFailure(buildMessage(messageOrName, " cannot be empty"));
+            throw argumentFailure(buildMessage(messageOrName, " is required and cannot be empty"));
         }
         return value;
     }
@@ -147,16 +147,16 @@ public final class Require {
     }
 
     public static long in(long value, long min, long max, String message) {
-        if (max < min || value < min || value > max) {
+        if (value < min || value > max) {
             throw argumentFailure(message);
         }
         return value;
     }
 
     public static <T extends Comparable<? super T>> T in(T value, T min, T max, String message) {
-        notNull(value, message);
-        notNull(min, message);
-        notNull(max, message);
+        nonNull(value, message);
+        nonNull(min, message);
+        nonNull(max, message);
         if (min.compareTo(max) > 0 || value.compareTo(min) < 0 || value.compareTo(max) > 0) {
             throw argumentFailure(message);
         }
@@ -164,8 +164,8 @@ public final class Require {
     }
 
     public static String matches(String value, Pattern pattern, String message) {
-        notNull(value, message);
-        notNull(pattern, message);
+        nonNull(value, message);
+        nonNull(pattern, message);
         if (!pattern.matcher(value).matches()) {
             throw argumentFailure(message);
         }
@@ -173,7 +173,7 @@ public final class Require {
     }
 
     public static String matches(String value, String regex, String message) {
-        notNull(regex, message);
+        nonNull(regex, message);
         try {
             return matches(value, Pattern.compile(regex), message);
         } catch (PatternSyntaxException exception) {

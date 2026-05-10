@@ -8,17 +8,16 @@ import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.Locale;
 
-import static java.util.Objects.requireNonNullElse;
-
 @Embeddable
 public record Money(BigDecimal amount, Currency currency) implements Comparable<Money> {
     public static final Money ZERO = new Money(BigDecimal.ZERO, Currency.getInstance("USD"));
 
     public Money {
-        amount = requireNonNullElse(amount, BigDecimal.ZERO)
-                .setScale(2, RoundingMode.HALF_UP);
-        currency = requireNonNullElse(currency, Currency.getInstance("USD"));
-        if (amount.signum() < 0) throw new DomainRuleViolation("Negative money forbidden");
+        Require.nonNull(amount, "Amount");
+        Require.nonNull(currency, "Currency");
+
+        amount = amount.setScale(2, RoundingMode.HALF_UP);
+        Require.nonNegative(amount.signum(), "Negative money forbidden");
     }
 
     public static Money of(double value) {
@@ -52,16 +51,12 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
 
     public Money subtract(Money other) {
         validateSameCurrency(other);
-        if (this.amount.compareTo(other.amount()) < 0) {
-            throw new DomainRuleViolation("Cannot subtract to negative money");
-        }
+        Require.argument(this.amount.compareTo(other.amount()) >= 0, "Cannot subtract to negative money");
         return new Money(amount.subtract(other.amount()), currency);
     }
 
     public Money divide(int divisor) {
-        if (divisor <= 0) {
-            throw new DomainRuleViolation("Divisor must be greater than zero");
-        }
+        Require.positive(divisor, "Divisor must be greater than zero");
         return new Money(amount.divide(BigDecimal.valueOf(divisor), 2, RoundingMode.HALF_UP), currency);
     }
 
@@ -70,7 +65,7 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
     }
 
     public Money divide(int divisor, RoundingMode roundingMode) {
-        if (divisor <= 0) throw new DomainRuleViolation("Divisor must be greater than zero");
+        Require.positive(divisor, "Divisor must be greater than zero");
         return new Money(amount.divide(BigDecimal.valueOf(divisor), 2, roundingMode), currency);
     }
 
@@ -90,14 +85,12 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
 
     public BigDecimal ratioOf(Money other) {
         validateSameCurrency(other);
-        if (other.isZero()) throw new DomainRuleViolation("Cannot divide by zero money");
+        Require.argument(!other.isZero(), "Cannot divide by zero money");
         return amount.divide(other.amount(), 4, RoundingMode.HALF_UP);
     }
 
     public Money discount(int percentage) {
-        if (percentage < 0 || percentage > 100) {
-            throw new DomainRuleViolation("Discount percentage must be between 0 and 100");
-        }
+        Require.in(percentage, 0, 100, "Discount percentage must be between 0 and 100");
         BigDecimal multiplier = BigDecimal.valueOf(100 - percentage)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         return new Money(amount.multiply(multiplier), currency);
@@ -120,7 +113,7 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
     }
 
     public Money applyTax(BigDecimal percent) {
-        if (percent.signum() < 0) throw new DomainRuleViolation("Tax percent cannot be negative");
+        Require.nonNegative(percent.signum(), "Tax percent cannot be negative");
         BigDecimal multiplier = BigDecimal.ONE.add(percent.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
         return new Money(amount.multiply(multiplier), currency);
     }
@@ -131,12 +124,12 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
 
     public boolean equalsWithinTolerance(Money other, BigDecimal tolerance) {
         validateSameCurrency(other);
-        if (tolerance.signum() < 0) throw new DomainRuleViolation("Tolerance cannot be negative");
+        Require.nonNegative(tolerance.signum(), "Tolerance cannot be negative");
         return this.amount.subtract(other.amount()).abs().compareTo(tolerance) <= 0;
     }
 
     public Money[] allocate(int parts) {
-        if (parts <= 0) throw new DomainRuleViolation("Parts must be greater than zero");
+        Require.positive(parts, "Parts must be greater than zero");
         Money[] allocation = new Money[parts];
         long minorUnits = toMinorUnits();
         long base = minorUnits / parts;
@@ -148,13 +141,13 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
     }
 
     public Money[] allocateProportionally(long[] ratios) {
-        if (ratios == null || ratios.length == 0) throw new DomainRuleViolation("Ratios must not be empty");
+        Require.notEmpty(ratios, "Ratios must not be empty");
         long totalRatio = 0;
         for (long ratio : ratios) {
-            if (ratio < 0) throw new DomainRuleViolation("Ratio cannot be negative");
+            Require.nonNegative(ratio, "Ratio cannot be negative");
             totalRatio += ratio;
         }
-        if (totalRatio == 0) throw new DomainRuleViolation("Total ratio must be greater than zero");
+        Require.argument(totalRatio > 0, "Total ratio must be greater than zero");
 
         Money[] allocation = new Money[ratios.length];
         long minorUnits = toMinorUnits();
@@ -175,8 +168,6 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
     }
 
     private void validateSameCurrency(Money other) {
-        if (!this.currency.equals(other.currency())) {
-            throw new DomainRuleViolation("Currency mismatch: " + this.currency + " vs " + other.currency());
-        }
+        Require.argument(this.currency.equals(other.currency()), "Currency mismatch: " + this.currency + " vs " + other.currency());
     }
 }
