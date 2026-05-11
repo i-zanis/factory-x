@@ -37,12 +37,13 @@ public class OrderLineItem {
     private Money price;
 
     public OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
-        this.productId = requireNonNull(productId, "Product ID is required");
-        this.sku = requireNonNull(sku, "SKU is required");
-        
-        requireNonNull(quantity, "Quantity is required");
-        if (quantity.isZero()) throw new DomainRuleViolation("Quantity must be greater than zero");
-        this.quantity = quantity;
+        this.productId = Require.nonNull(productId, "Product ID");
+        this.sku = Require.nonNull(sku, "SKU");
+
+        this.quantity = Require.nonNull(quantity, "Quantity");
+        if (quantity.isZero()) {
+            throw new DomainRuleViolation("Quantity must be greater than zero");
+        }
 
         requireNonNull(price, "Price is required");
         if (price.isZero()) throw new DomainRuleViolation("Price must be greater than zero");
