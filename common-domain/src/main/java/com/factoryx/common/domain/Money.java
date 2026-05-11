@@ -1,5 +1,6 @@
 package com.factoryx.common.domain;
 
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
@@ -16,10 +17,8 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
         Require.nonNull(amount, "Amount");
         Require.nonNull(currency, "Currency");
 
-        amount = amount.setScale(2, RoundingMode.HALF_UP);
         Require.nonNegative(amount.signum(), "Negative money forbidden");
     }
-
     public static Money of(double value) {
         return new Money(BigDecimal.valueOf(value), Currency.getInstance("USD"));
     }
@@ -70,7 +69,7 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
     }
 
     @Override
-    public int compareTo(Money other) {
+    public int compareTo(@Nonnull Money other) {
         validateSameCurrency(other);
         return amount.compareTo(other.amount());
     }
@@ -106,7 +105,7 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
         return format.format(amount);
     }
 
-    public boolean isBetween(Money min, Money max) {
+    public boolean in(Money min, Money max) {
         validateSameCurrency(min);
         validateSameCurrency(max);
         return this.compareTo(min) >= 0 && this.compareTo(max) <= 0;
