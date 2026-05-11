@@ -16,7 +16,6 @@ public class ProductController implements ProductsApi {
 
     private final ProductService productService;
 
-    // TODO(i-zanis): see if @ResponseStatus is more idiomatic
     @Override
     public ResponseEntity<List<com.factoryx.catalog.model.Product>> listProducts() {
         var products = productService.getAllProducts().stream()
