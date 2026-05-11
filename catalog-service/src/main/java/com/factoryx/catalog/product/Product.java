@@ -1,19 +1,22 @@
 package com.factoryx.catalog.product;
 
 import com.factoryx.common.domain.AuditInfo;
+import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
+import com.factoryx.common.domain.Require;
 import com.factoryx.common.domain.Sku;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.SoftDelete;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.math.BigDecimal;
 import java.util.UUID;
+
+import static org.apache.commons.lang3.StringUtils.isAsciiPrintable;
+import static org.apache.commons.lang3.StringUtils.normalizeSpace;
 
 @Entity
 @Table(name = "product")
@@ -27,7 +30,6 @@ public class Product extends AbstractAggregateRoot<Product> {
     private UUID id;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "sku"))
     private Sku sku;
 
     private String name;
@@ -35,22 +37,27 @@ public class Product extends AbstractAggregateRoot<Product> {
     private String description;
 
     @Embedded
-    @AttributeOverride(name = "amount", column = @Column(name = "price"))
     private Money price;
 
     @Embedded
     private AuditInfo auditInfo;
 
     private Product(UUID id, Sku sku, String name, Money price) {
-        if (id == null) throw new IllegalArgumentException("Product ID cannot be null");
-        if (sku == null || sku.isEmpty()) throw new IllegalArgumentException("Product needs valid SKU");
-        if (StringUtils.isBlank(name)) throw new IllegalArgumentException("Product name cannot be empty");
-        if (price == null || price.isZero()) throw new IllegalArgumentException("Product price must be > 0");
+        this.id = Require.nonNull(id, "Product ID");
+        this.sku = Require.nonNull(sku, "SKU");
 
-        this.id = id;
-        this.sku = sku;
-        this.name = name;
-        this.price = price;
+        this.name = Require.text(name, "Product name");
+        if (!isAsciiPrintable(this.name)) {
+            throw new DomainRuleViolation("Product name contains invalid characters");
+        }
+        this.name = normalizeSpace(name);
+
+
+        this.price = Require.nonNull(price, "Price");
+        if (price.isZero()) {
+            throw new DomainRuleViolation("Price must be > 0");
+        }
+        
         this.auditInfo = new AuditInfo();
     }
 
@@ -59,7 +66,7 @@ public class Product extends AbstractAggregateRoot<Product> {
     }
 
     public void describe(String description) {
-        if (hasText(description)) {
+        if (description != null && !description.isBlank()) {
             this.description = normalizeSpace(description);
             if (!isAsciiPrintable(this.description)) {
                 throw new DomainRuleViolation("Description contains invalid characters");
@@ -70,11 +77,14 @@ public class Product extends AbstractAggregateRoot<Product> {
     }
 
     public void updatePrice(Money newPrice) {
-        if (newPrice == null || newPrice.isZero()) throw new IllegalArgumentException("New price must be > 0");
+        Require.nonNull(newPrice, "New price");
+        // TODO(i-zanis): is this correct? can price be 0 or should be moved to the entity directly?
+        if (newPrice.isZero()) {
+            throw new DomainRuleViolation("New price must be > 0");
+        }
 
         Money oldPrice = this.price;
         this.price = newPrice;
-
         registerEvent(new ProductPriceChangedEvent(this.id, oldPrice, newPrice));
     }
 
@@ -84,16 +94,15 @@ public class Product extends AbstractAggregateRoot<Product> {
         }
         // TODO (Review): Is applying discount directly on entity safe without historical tracking?
         // TODO(i-zanis): Might need a PriceHistory entity in the future.
+        // Answer: Yes. Overwriting price destroys audit trail. Unsafe for financial reporting/refunds. Need PriceHistory entity or track price change domain events. Keep immutable record.
         updatePrice(this.price.discount(percent));
     }
 
     public void rename(String name) {
-        if (!hasText(name)) {
-            throw new DomainRuleViolation("Product name cannot be empty");
-        }
-        this.name = normalizeSpace(name);
+        this.name = Require.text(name, "Product name");
         if (!isAsciiPrintable(this.name)) {
             throw new DomainRuleViolation("Product name contains invalid characters");
         }
+        this.name = normalizeSpace(name);
     }
 }
