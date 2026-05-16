@@ -3,6 +3,7 @@ package com.factoryx.order.order;
 import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Quantity;
+import com.factoryx.common.domain.Require;
 import com.factoryx.common.domain.Sku;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,8 +12,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-import static java.util.Objects.*;
-
 @Entity
 @Table(name = "order_line_items")
 @Getter
@@ -20,6 +19,7 @@ import static java.util.Objects.*;
 public class OrderLineItem {
 
     @Id
+    // TODO(i-zanis): Should this be OrderLineItemId type?
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -45,9 +45,10 @@ public class OrderLineItem {
             throw new DomainRuleViolation("Quantity must be greater than zero");
         }
 
-        requireNonNull(price, "Price is required");
-        if (price.isZero()) throw new DomainRuleViolation("Price must be greater than zero");
-        this.price = price;
+        this.price = Require.nonNull(price, "Price");
+        if (price.isZero()) {
+            throw new DomainRuleViolation("Price must be greater than zero");
+        }
     }
 
     public Money subtotal() {
