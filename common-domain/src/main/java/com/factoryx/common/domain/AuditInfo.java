@@ -107,7 +107,6 @@ public class AuditInfo {
         touch();
     }
 
-    // TODO(i-zanis): change when spring sec
     public void applySystemStamp() {
         updatedBy = "SYSTEM";
         touch();

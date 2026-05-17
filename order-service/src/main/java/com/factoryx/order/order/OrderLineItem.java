@@ -35,6 +35,7 @@ public class OrderLineItem {
     private Money price;
 
     public OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
+        this.id = new OrderLineItemId(UUID.randomUUID());
         this.productId = Require.nonNull(productId, "Product ID");
         this.sku = Require.nonNull(sku, "SKU");
 

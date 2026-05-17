@@ -1,6 +1,7 @@
 package com.factoryx.catalog.grpc;
 
 import com.factoryx.catalog.product.ProductService;
+import com.factoryx.common.domain.Sku;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -13,9 +14,9 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
 
     @Override
     public void getProductPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver) {
-        String sku = request.getSku();
+        String skuValue = request.getSku();
 
-        productService.getProductBySku(sku)
+        productService.getProductBySku(new Sku(skuValue))
                 .ifPresentOrElse(
                         product -> {
                             PriceResponse response = PriceResponse.newBuilder()
@@ -27,7 +28,7 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
                         },
                         () -> {
                             PriceResponse response = PriceResponse.newBuilder()
-                                    .setSku(sku)
+                                    .setSku(skuValue)
                                     .setPrice(0.0)
                                     .setExists(false)
                                     .build();
