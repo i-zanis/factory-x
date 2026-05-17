@@ -2,10 +2,7 @@ package com.factoryx.inventory.stock
 
 import com.factoryx.common.domain.Quantity
 import com.factoryx.common.domain.Sku
-import jakarta.persistence.Embedded
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.springframework.data.domain.AbstractAggregateRoot
 
 @Entity
@@ -15,7 +12,10 @@ class StockLevel(
     val sku: Sku,
 
     @Embedded
-    private var quantity: Quantity
+    private var quantity: Quantity,
+
+    @Version
+    var version: Long? = null
 ) : AbstractAggregateRoot<StockLevel>() {
 
     init {
