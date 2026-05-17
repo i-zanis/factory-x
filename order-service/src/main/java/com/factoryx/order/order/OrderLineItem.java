@@ -18,10 +18,8 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderLineItem {
 
-    @Id
-    // TODO(i-zanis): Should this be OrderLineItemId type?
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @EmbeddedId
+    private OrderLineItemId id;
 
     @Embedded
     @AttributeOverride(name = "value", column = @Column(name = "product_id", nullable = false))
