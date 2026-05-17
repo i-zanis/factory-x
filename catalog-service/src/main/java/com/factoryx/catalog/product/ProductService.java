@@ -27,14 +27,12 @@ public class ProductService {
         return productRepository.findById(id);
     }
 
-    public Optional<Product> getProductBySku(String skuValue) throws Domain{
-        return productRepository.findBySku(new Sku(skuValue));
+    public Optional<Product> getProductBySku(Sku sku) {
+        return productRepository.findBySku(sku);
     }
 
     @Transactional
-    public Product createProduct(String skuValue, String name, double priceValue) {
-        Sku sku = new Sku(skuValue);
-        Money price = Money.of(java.math.BigDecimal.valueOf(priceValue));
+    public Product createProduct(Sku sku, String name, Money price) {
         Product product = Product.create(sku, name, price);
         return productRepository.save(product);
     }
