@@ -82,13 +82,6 @@ public final class Require {
         return value;
     }
 
-    public static <T> T[] notEmpty(T[] value, String messageOrName) {
-        if (value == null || value.length == 0) {
-            throw argumentFailure(buildMessage(messageOrName, " is required and cannot be empty"));
-        }
-        return value;
-    }
-
     public static <T extends Iterable<?>> T noNullElements(T value, String message) {
         if (value == null) {
             throw argumentFailure(message);
@@ -177,7 +170,7 @@ public final class Require {
         try {
             return matches(value, Pattern.compile(regex), message);
         } catch (PatternSyntaxException exception) {
-            throw argumentFailure(message, exception);
+            throw new DomainRuleViolation(message + ": " + exception.getMessage());
         }
     }
 
