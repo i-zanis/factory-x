@@ -6,8 +6,11 @@ import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
-import java.util.Currency;
-import java.util.Locale;
+import java.util.ArrayList;
+import java.util.List;
+
+import Currency;
+import Locale;
 
 @Embeddable
 public record Money(BigDecimal amount, Currency currency) implements Comparable<Money> {
@@ -127,19 +130,20 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
         return this.amount.subtract(other.amount()).abs().compareTo(tolerance) <= 0;
     }
 
-    public Money[] allocate(int parts) {
+    public List<Money> allocate(int parts) {
         Require.positive(parts, "Parts must be greater than zero");
-        Money[] allocation = new Money[parts];
+        List<Money> allocation = new ArrayList<>(parts);
         long minorUnits = toMinorUnits();
         long base = minorUnits / parts;
         long remainder = minorUnits % parts;
         for (int i = 0; i < parts; i++) {
-            allocation[i] = Money.fromMinorUnits(base + (i < remainder ? 1 : 0), currency);
+            allocation.add(Money.fromMinorUnits(base + (i < remainder ? 1 : 0), currency));
         }
+
         return allocation;
     }
 
-    public Money[] allocateProportionally(long[] ratios) {
+    public List<Money> allocateProportionally(List<Long> ratios) {
         Require.notEmpty(ratios, "Ratios must not be empty");
         long totalRatio = 0;
         for (long ratio : ratios) {
@@ -148,16 +152,16 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
         }
         Require.argument(totalRatio > 0, "Total ratio must be greater than zero");
 
-        Money[] allocation = new Money[ratios.length];
+        List<Money> allocation = new ArrayList<>(ratios.size());
         long minorUnits = toMinorUnits();
         long remainder = minorUnits;
-        for (int i = 0; i < ratios.length; i++) {
-            long currentMinorUnits = (minorUnits * ratios[i]) / totalRatio;
-            allocation[i] = Money.fromMinorUnits(currentMinorUnits, currency);
+        for (Long ratio : ratios) {
+            long currentMinorUnits = (minorUnits * ratio) / totalRatio;
+            allocation.add(Money.fromMinorUnits(currentMinorUnits, currency));
             remainder -= currentMinorUnits;
         }
         for (int i = 0; i < remainder; i++) {
-            allocation[i] = allocation[i].add(Money.fromMinorUnits(1, currency));
+            allocation.set(i, allocation.get(i).add(Money.fromMinorUnits(1, currency)));
         }
         return allocation;
     }
