@@ -80,11 +80,17 @@ components:
       properties:
         sku:
           type: string
+          pattern: '^[A-Z]{3}-\d{4}$'
+          example: "ABC-1234"
         name:
           type: string
+          minLength: 1
+          example: "Test Product"
         price:
           type: number
           format: double
+          minimum: 0.01
+          example: 9.99
       required:
         - sku
         - name
