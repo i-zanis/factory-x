@@ -135,7 +135,7 @@ public final class Require {
     }
 
     public static int in(int value, int min, int max, String message) {
-        in((long) value, (long) min, (long) max, message);
+        in(value, min, (long) max, message);
         return value;
     }
 

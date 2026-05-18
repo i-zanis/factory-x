@@ -1,5 +1,6 @@
 package com.factoryx.common.domain;
 
+import jakarta.annotation.Nonnull;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;

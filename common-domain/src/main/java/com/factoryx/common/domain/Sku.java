@@ -3,7 +3,6 @@ package com.factoryx.common.domain;
 import jakarta.persistence.Embeddable;
 
 import static org.apache.commons.lang3.StringUtils.*;
-import static org.apache.commons.lang3.StringUtils.normalizeSpace;
 
 @Embeddable
 public record Sku(String value) {
