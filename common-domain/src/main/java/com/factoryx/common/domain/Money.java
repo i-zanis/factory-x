@@ -9,8 +9,8 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import Currency;
-import Locale;
+import java.util.Currency;
+import java.util.Locale;
 
 @Embeddable
 public record Money(BigDecimal amount, Currency currency) implements Comparable<Money> {
@@ -155,7 +155,7 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
         List<Money> allocation = new ArrayList<>(ratios.size());
         long minorUnits = toMinorUnits();
         long remainder = minorUnits;
-        for (Long ratio : ratios) {
+        for (var ratio : ratios) {
             long currentMinorUnits = (minorUnits * ratio) / totalRatio;
             allocation.add(Money.fromMinorUnits(currentMinorUnits, currency));
             remainder -= currentMinorUnits;

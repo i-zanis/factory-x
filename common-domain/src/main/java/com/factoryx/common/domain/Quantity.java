@@ -95,7 +95,7 @@ public record Quantity(Integer value) implements Comparable<Quantity> {
     }
 
     @Override
-    public int compareTo(Quantity other) {
+    public int compareTo(@Nonnull Quantity other) {
         Require.nonNull(other, "Other quantity");
         return this.value.compareTo(other.value());
     }
