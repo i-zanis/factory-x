@@ -5,5 +5,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface PriceHistoryRepository extends JpaRepository<PriceHistory, UUID> {
-    List<PriceHistory> findByProductIdOrderByEffectiveFromDesc(UUID productId);
+    List<PriceHistory> findByProductIdOrderByEffectiveFromDesc(ProductId productId);
 }
