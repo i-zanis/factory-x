@@ -12,6 +12,9 @@ import org.hibernate.annotations.SoftDelete;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.apache.commons.lang3.StringUtils.isAsciiPrintable;
@@ -54,6 +57,7 @@ public class Product extends AbstractAggregateRoot<Product> {
         Require.argument(!price.isZero(), "Price must be > 0");
         
         this.auditInfo = new AuditInfo();
+        registerEvent(new ProductCreatedEvent(this.id, this.price));
     }
 
     public static Product create(Sku sku, String name, Money price) {
@@ -80,9 +84,6 @@ public class Product extends AbstractAggregateRoot<Product> {
 
     public void applyDiscount(int percent) {
         Require.in(percent, 1, 50, "Discount must be between 1% and 50%");
-        // TODO (Review): Is applying discount directly on entity safe without historical tracking?
-        // TODO(i-zanis): Might need a PriceHistory entity in the future.
-        // Answer: Yes. Overwriting price destroys audit trail. Unsafe for financial reporting/refunds. Need PriceHistory entity or track price change domain events. Keep immutable record.
         updatePrice(this.price.discount(percent));
     }
 
