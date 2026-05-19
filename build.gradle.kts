@@ -30,6 +30,16 @@ subprojects {
         }
     }
 
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("--enable-preview")
+        options.compilerArgs.add("--release")
+        options.compilerArgs.add("25")
+    }
+
+    tasks.withType<Test> {
+        jvmArgs("--enable-preview")
+    }
+
     configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.0")
