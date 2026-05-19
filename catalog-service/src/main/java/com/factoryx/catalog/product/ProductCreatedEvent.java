@@ -1,7 +1,6 @@
 package com.factoryx.catalog.product;
 
 import com.factoryx.common.domain.Money;
-import java.util.UUID;
 
-public record ProductCreatedEvent(UUID productId, Money initialPrice) {
+public record ProductCreatedEvent(ProductId productId, Money initialPrice) {
 }

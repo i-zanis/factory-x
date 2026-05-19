@@ -10,7 +10,7 @@ public final class ProductAssembler {
             return null;
         }
         com.factoryx.catalog.model.Product dto = new com.factoryx.catalog.model.Product();
-        dto.setId(entity.getId());
+        dto.setId(entity.getId().value());
         dto.setSku(entity.getSku().value());
         dto.setName(entity.getName());
         dto.setPrice(entity.getPrice().doubleValue());

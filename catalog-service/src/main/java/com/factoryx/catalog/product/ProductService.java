@@ -1,9 +1,7 @@
 package com.factoryx.catalog.product;
 
-import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Sku;
-import java.util.Currency;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +22,7 @@ public class ProductService {
     }
 
     public Optional<Product> getProductById(UUID id) {
-        return productRepository.findById(id);
+        return productRepository.findById(ProductId.of(id));
     }
 
     public Optional<Product> getProductBySku(Sku sku) {

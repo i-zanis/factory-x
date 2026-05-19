@@ -28,8 +28,9 @@ import static org.apache.commons.lang3.StringUtils.normalizeSpace;
 @EntityListeners(AuditingEntityListener.class)
 public class Product extends AbstractAggregateRoot<Product> {
 
-    @Id
-    private UUID id;
+    @EmbeddedId
+    @AttributeOverride(name = "value", column = @Column(name = "id"))
+    private ProductId id;
 
     @Embedded
     private Sku sku;
@@ -44,7 +45,7 @@ public class Product extends AbstractAggregateRoot<Product> {
     @Embedded
     private AuditInfo auditInfo;
 
-    private Product(UUID id, Sku sku, String name, Money price) {
+    private Product(ProductId id, Sku sku, String name, Money price) {
         this.id = Require.nonNull(id, "Product ID");
         this.sku = Require.nonNull(sku, "SKU");
 
@@ -61,7 +62,7 @@ public class Product extends AbstractAggregateRoot<Product> {
     }
 
     public static Product create(Sku sku, String name, Money price) {
-        return new Product(UUID.randomUUID(), sku, name, price);
+        return new Product(ProductId.generate(), sku, name, price);
     }
 
     public void describe(String description) {
