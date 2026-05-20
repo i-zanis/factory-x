@@ -17,8 +17,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<ProductProjection> getAllProducts() {
+        return productRepository.findAllProjectedBy();
     }
 
     public Optional<Product> getProductById(UUID id) {
