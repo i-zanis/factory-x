@@ -11,16 +11,16 @@ public class AiAssistantService {
 
     private final ChatClient chatClient;
 
-    public String chat(String message) {
+    public String chat(PromptMessage message) {
         return chatClient.prompt()
-                .user(message)
+                .user(message.value())
                 .call()
                 .content();
     }
 
-    public Flux<String> streamChat(String message) {
+    public Flux<String> streamChat(PromptMessage message) {
         return chatClient.prompt()
-                .user(message)
+                .user(message.value())
                 .stream()
                 .content();
     }

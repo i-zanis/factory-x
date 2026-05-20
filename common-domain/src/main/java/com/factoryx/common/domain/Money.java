@@ -1,7 +1,6 @@
 package com.factoryx.common.domain;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,16 +11,16 @@ import java.util.List;
 import java.util.Currency;
 import java.util.Locale;
 
-@Embeddable
 public record Money(BigDecimal amount, Currency currency) implements Comparable<Money> {
+
     public static final Money ZERO = new Money(BigDecimal.ZERO, Currency.getInstance("USD"));
 
     public Money {
         Require.nonNull(amount, "Amount");
         Require.nonNull(currency, "Currency");
-
         Require.nonNegative(amount.signum(), "Negative money forbidden");
     }
+
     public static Money of(double value) {
         return new Money(BigDecimal.valueOf(value), Currency.getInstance("USD"));
     }

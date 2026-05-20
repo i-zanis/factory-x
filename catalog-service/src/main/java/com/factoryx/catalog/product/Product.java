@@ -35,7 +35,8 @@ public class Product extends AbstractAggregateRoot<Product> {
     @Embedded
     private Sku sku;
 
-    private String name;
+    @Embedded
+    private ProductName name;
 
     private String description;
 
@@ -45,14 +46,10 @@ public class Product extends AbstractAggregateRoot<Product> {
     @Embedded
     private AuditInfo auditInfo;
 
-    private Product(ProductId id, Sku sku, String name, Money price) {
+    private Product(ProductId id, Sku sku, ProductName name, Money price) {
         this.id = Require.nonNull(id, "Product ID");
         this.sku = Require.nonNull(sku, "SKU");
-
-        this.name = Require.text(name, "Product name");
-        Require.argument(isAsciiPrintable(this.name), "Product name contains invalid characters");
-        this.name = normalizeSpace(name);
-
+        this.name = Require.nonNull(name, "Product name");
 
         this.price = Require.nonNull(price, "Price");
         Require.argument(!price.isZero(), "Price must be > 0");
@@ -62,7 +59,7 @@ public class Product extends AbstractAggregateRoot<Product> {
     }
 
     public static Product create(Sku sku, String name, Money price) {
-        return new Product(ProductId.generate(), sku, name, price);
+        return new Product(ProductId.generate(), sku, new ProductName(name), price);
     }
 
     public void describe(String description) {
@@ -88,9 +85,11 @@ public class Product extends AbstractAggregateRoot<Product> {
         updatePrice(this.price.discount(percent));
     }
 
-    public void rename(String name) {
-        this.name = Require.text(name, "Product name");
-        Require.argument(isAsciiPrintable(this.name), "Product name contains invalid characters");
-        this.name = normalizeSpace(name);
+    public void rename(ProductName name) {
+        this.name = Require.nonNull(name, "Product name");
+    }
+
+    public String getName() {
+        return name.value();
     }
 }

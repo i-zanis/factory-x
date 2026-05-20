@@ -1,16 +1,30 @@
 package com.factoryx.inventory.stock
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import com.factoryx.common.domain.Quantity
+import com.factoryx.common.domain.Sku
+import jakarta.persistence.*
 import java.util.*
 
 @Entity
 @Table(name = "stock_transaction_logs")
-class StockTransactionLog(
+class StockTransactionLog private constructor(
     @Id
-    var id: UUID = UUID.randomUUID(),
-    var sku: String,
-    var quantityChange: Int,
-    var reason: String
-)
+    val id: UUID = UUID.randomUUID(),
+
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "sku"))
+    val sku: Sku,
+
+    @Embedded
+    @AttributeOverride(name = "value", column = Column(name = "quantity_change"))
+    val quantityChange: Quantity,
+
+    val reason: String
+) {
+    companion object {
+        @JvmStatic
+        fun log(sku: Sku, change: Quantity, reason: String): StockTransactionLog {
+            return StockTransactionLog(sku = sku, quantityChange = change, reason = reason)
+        }
+    }
+}

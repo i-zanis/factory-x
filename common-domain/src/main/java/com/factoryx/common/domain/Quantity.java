@@ -1,7 +1,6 @@
 package com.factoryx.common.domain;
 
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,7 +8,6 @@ import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.normalizeSpace;
 
-@Embeddable
 public record Quantity(Integer value) implements Comparable<Quantity> {
 
     public static final Quantity ZERO = new Quantity(0);

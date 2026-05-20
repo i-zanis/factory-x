@@ -1,10 +1,7 @@
 package com.factoryx.common.domain;
 
-import jakarta.persistence.Embeddable;
-
 import static org.apache.commons.lang3.StringUtils.*;
 
-@Embeddable
 public record Sku(String value) {
 
     private static final String SKU_PATTERN = "^[A-Z]{3}-\\d{4}$";
@@ -13,6 +10,10 @@ public record Sku(String value) {
         Require.text(value, "SKU");
         value = normalizeSpace(value).toUpperCase();
         Require.matches(value, SKU_PATTERN, "Invalid SKU format. Expected AAA-0000");
+    }
+
+    public static Sku of(String value) {
+        return new Sku(value);
     }
 
     public String category() {

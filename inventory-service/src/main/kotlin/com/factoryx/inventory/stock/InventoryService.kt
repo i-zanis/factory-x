@@ -1,5 +1,6 @@
 package com.factoryx.inventory.stock
 
+import com.factoryx.common.domain.DomainRuleViolation
 import com.factoryx.common.domain.Quantity
 import com.factoryx.common.domain.Sku
 import org.springframework.stereotype.Service
@@ -12,19 +13,17 @@ class InventoryService(
 ) {
 
     @Transactional
-    fun initializeStock(skuValue: String, initialQuantity: Int) {
-        val sku = Sku(skuValue)
+    fun initializeStock(sku: Sku, initialQuantity: Quantity) {
         if (!stockLevelRepository.existsById(sku)) {
-            val stockLevel = StockLevel.create(sku, Quantity.of(initialQuantity))
+            val stockLevel = StockLevel.create(sku, initialQuantity)
             stockLevelRepository.save(stockLevel)
         }
     }
 
     @Transactional
-    fun updateStock(skuValue: String, quantityChange: Int) {
-        val sku = Sku(skuValue)
+    fun updateStock(sku: Sku, quantityChange: Int) {
         val stockLevel =
-            stockLevelRepository.findById(sku).orElseThrow { IllegalArgumentException("SKU not found: $skuValue") }
+            stockLevelRepository.findById(sku).orElseThrow { DomainRuleViolation("SKU not found: ${sku.value()}") }
 
         if (quantityChange >= 0) {
             stockLevel.replenish(Quantity.of(quantityChange))
@@ -33,5 +32,12 @@ class InventoryService(
         }
         
         stockLevelRepository.save(stockLevel)
+    }
+
+    @Transactional
+    fun updateStocks(updates: List<Pair<Sku, Int>>) {
+        updates.forEach { (sku, quantityChange) ->
+            updateStock(sku, quantityChange)
+        }
     }
 }

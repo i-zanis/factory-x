@@ -1,5 +1,7 @@
 package com.factoryx.inventory.messaging
 
+import com.factoryx.common.domain.DomainRuleViolation
+import com.factoryx.common.domain.Sku
 import com.factoryx.inventory.stock.InventoryService
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
@@ -26,8 +28,8 @@ class OrderCreatedListener(
                 val orderId = orderData.id
 
                 try {
-                    orderData.lineItems.forEach { item ->
-                        inventoryService.updateStock(item.sku, -item.quantity)
+                    val updates = orderData.lineItems.map { item ->
+                        Sku.of(item.sku) to -item.quantity
                     }
                     sendResponse(orderId, "SUCCESS")
                 } catch (e: Exception) {

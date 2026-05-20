@@ -1,5 +1,6 @@
 package com.factoryx.inventory.stock
 
+import com.factoryx.common.domain.Quantity
 import com.factoryx.common.domain.Sku
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -13,13 +14,13 @@ class InventoryController(
 
     @GetMapping("/{sku}")
     fun getStock(@PathVariable sku: String): ResponseEntity<StockLevel> {
-        val stock = stockLevelRepository.findById(Sku(sku))
+        val stock = stockLevelRepository.findById(Sku.of(sku))
         return stock.map { ResponseEntity.ok(it) }.orElseGet { ResponseEntity.notFound().build() }
     }
 
     @PostMapping("/{sku}/initialize")
     fun initStock(@PathVariable sku: String, @RequestParam quantity: Int): ResponseEntity<Void> {
-        inventoryService.initializeStock(sku, quantity)
+        inventoryService.initializeStock(Sku.of(sku), Quantity.of(quantity))
         return ResponseEntity.ok().build()
     }
 }

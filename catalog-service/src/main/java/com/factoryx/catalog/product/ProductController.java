@@ -28,7 +28,8 @@ public class ProductController implements ProductsApi {
 
     @Override
     public ResponseEntity<com.factoryx.catalog.model.Product> createProduct(ProductRequest productRequest) {
-        Sku sku = new Sku(productRequest.getSku());
+        Sku sku = Sku.of(productRequest.getSku());
+        // TODO what kind of error this will throw now? will be be service level error with domain exception? is it correct?
         Money price = Money.of(productRequest.getPrice());
         
         var created = productService.createProduct(sku, productRequest.getName(), price);
@@ -37,7 +38,7 @@ public class ProductController implements ProductsApi {
 
     @Override
     public ResponseEntity<com.factoryx.catalog.model.Product> getProductById(UUID id) {
-        return productService.getProductById(id)
+        return productService.getProductById(ProductId.of(id))
                 .map(ProductAssembler::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

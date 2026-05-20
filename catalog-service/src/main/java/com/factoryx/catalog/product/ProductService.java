@@ -21,8 +21,8 @@ public class ProductService {
         return productRepository.findAllProjectedBy();
     }
 
-    public Optional<Product> getProductById(UUID id) {
-        return productRepository.findById(ProductId.of(id));
+    public Optional<Product> getProductById(ProductId id) {
+        return productRepository.findById(id);
     }
 
     public Optional<Product> getProductBySku(Sku sku) {
