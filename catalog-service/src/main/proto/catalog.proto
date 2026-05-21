@@ -8,14 +8,23 @@ option java_outer_classname = "CatalogProto";
 
 service InternalCatalogService {
   rpc GetProductPrice (PriceRequest) returns (PriceResponse);
+  rpc GetProductPrices (BatchPriceRequest) returns (BatchPriceResponse);
 }
 
 message PriceRequest {
   string sku = 1;
 }
 
+message BatchPriceRequest {
+  repeated string skus = 1;
+}
+
 message PriceResponse {
   string sku = 1;
   double price = 2;
   bool exists = 3;
+}
+
+message BatchPriceResponse {
+  repeated PriceResponse prices = 1;
 }
