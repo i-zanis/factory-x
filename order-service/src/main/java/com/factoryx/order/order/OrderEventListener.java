@@ -1,5 +1,8 @@
 package com.factoryx.order.order;
 
+import com.factoryx.common.domain.DomainRuleViolation;
+import com.factoryx.order.outbox.AggregateType;
+import com.factoryx.order.outbox.EventType;
 import com.factoryx.order.outbox.OutboxEvent;
 import com.factoryx.order.outbox.OutboxRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -24,30 +27,30 @@ public class OrderEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleOrderCreatedForOutbox(OrderCreatedEvent event) {
-        log.info("Creating outbox event for order: {}", event.order().id());
+        log.info("Creating outbox event for order: {}", event.orderId());
         try {
-            OutboxEvent outboxEvent = new OutboxEvent(
-                    "Order",
-                    event.order().id().toString(),
-                    "OrderCreated",
-                    objectMapper.writeValueAsString(event.order())
+            OutboxEvent outboxEvent = OutboxEvent.from(
+                    AggregateType.of("Order"),
+                    event.orderId().toString(),
+                    EventType.of("OrderCreated"),
+                    objectMapper.writeValueAsString(event)
             );
             outboxRepository.save(outboxEvent);
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize order for outbox: {}", event.order().id(), e);
-            throw new RuntimeException("Outbox serialization failure", e);
+            log.error("Failed to serialize order for outbox: {}", event.orderId(), e);
+            throw new DomainRuleViolation("Outbox serialization failure", e);
         }
     }
 
     @Async
     @EventListener
     public void handleOrderCreatedForRedis(OrderCreatedEvent event) {
-        log.info("Updating Redis read-model for order: {}", event.order().id());
+        log.info("Updating Redis read-model for order: {}", event.orderId());
         try {
-            String key = "order:view:" + event.order().customerId();
-            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(event.order()));
+            String key = "order:view:" + event.customerId();
+            redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(event));
         } catch (JsonProcessingException e) {
-            log.error("Failed to update Redis read-model for order: {}", event.order().id(), e);
+            log.error("Failed to update Redis read-model for order: {}", event.orderId(), e);
         }
     }
 }

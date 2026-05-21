@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, ProductId> {
     Optional<Product> findBySku(Sku sku);
 
+    List<Product> findAllBySkuIn(List<Sku> skus);
+
     @Query("SELECT p.id as id, p.sku as sku, p.name as name, p.price as price FROM Product p")
     List<ProductProjection> findAllProjectedBy();
 }
