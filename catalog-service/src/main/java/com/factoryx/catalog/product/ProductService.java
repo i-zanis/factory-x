@@ -29,6 +29,10 @@ public class ProductService {
         return productRepository.findBySku(sku);
     }
 
+    public List<Product> getProductsBySkus(List<Sku> skus) {
+        return productRepository.findAllBySkuIn(skus);
+    }
+
     @Transactional
     public Product createProduct(Sku sku, String name, Money price) {
         Product product = Product.create(sku, name, price);

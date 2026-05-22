@@ -1,4 +1,4 @@
-sp package com.factoryx.catalog.product;
+package com.factoryx.catalog.product;
 
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Require;
