@@ -15,7 +15,7 @@ public class OrderLineItemId implements Serializable {
 
     private UUID value;
 
-    public OrderLineItemId(UUID value) {
+    private OrderLineItemId(UUID value) {
         this.value = Require.nonNull(value, "OrderLineItemId");
     }
 
