@@ -23,4 +23,16 @@ class InventoryController(
         inventoryService.initializeStock(Sku.of(sku), Quantity.of(quantity))
         return ResponseEntity.ok().build()
     }
+
+    @PostMapping("/{sku}/replenish")
+    fun replenish(@PathVariable sku: String, @RequestParam quantity: Int): ResponseEntity<Void> {
+        inventoryService.updateStock(Sku.of(sku), quantity)
+        return ResponseEntity.ok().build()
+    }
+
+    @PostMapping("/{sku}/consume")
+    fun consume(@PathVariable sku: String, @RequestParam quantity: Int): ResponseEntity<Void> {
+        inventoryService.updateStock(Sku.of(sku), -quantity)
+        return ResponseEntity.ok().build()
+    }
 }

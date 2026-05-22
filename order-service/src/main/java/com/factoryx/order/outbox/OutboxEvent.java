@@ -1,11 +1,9 @@
 package com.factoryx.order.outbox;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -13,20 +11,23 @@ import java.util.UUID;
 @Entity
 @Table(name = "outbox")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OutboxEvent {
 
+    // TODO this is primitive
     @Id
     private UUID id;
 
-    @Column(nullable = false)
-    private String aggregateType;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "aggregate_type", nullable = false))
+    private AggregateType aggregateType;
 
     @Column(nullable = false)
     private String aggregateId;
 
-    @Column(nullable = false)
-    private String type;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "type", nullable = false))
+    private EventType type;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String payload;
@@ -34,12 +35,16 @@ public class OutboxEvent {
     @Column(nullable = false)
     private Instant createdAt;
 
-    public OutboxEvent(String aggregateType, String aggregateId, String type, String payload) {
+    protected OutboxEvent(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
         this.id = UUID.randomUUID();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.type = type;
         this.payload = payload;
         this.createdAt = Instant.now();
+    }
+
+    public static OutboxEvent from(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
+        return new OutboxEvent(aggregateType, aggregateId, type, payload);
     }
 }
