@@ -15,9 +15,9 @@ public class OrderQueryService {
 
     private final OrderRepository orderRepository;
 
-    @Cacheable(value = "order:view", key = "#customerId", unless = "#result == null")
-    public List<OrderSummaryProjection> getOrdersByCustomer(UUID customerId) {
-        log.info("Redis cache miss with customerId: {}", customerId);
-        return orderRepository.findByCustomerId(new CustomerId(customerId));
+    @Cacheable(value = "order:view", key = "#customerId.value()", unless = "#result == null")
+    public List<OrderSummaryProjection> getOrdersByCustomer(CustomerId customerId) {
+        log.info("Redis cache miss with customerId: {}", customerId.value());
+        return orderRepository.findByCustomerId(customerId);
     }
 }

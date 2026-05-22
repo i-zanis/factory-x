@@ -25,15 +25,15 @@ public class OrderService {
         Order order = Order.create(new CustomerId(customerId));
 
         for (OrderLineItemRequest req : requests) {
-            Sku sku = new Sku(req.sku());
-            ProductPriceProvider.PriceInfo priceInfo = priceProvider.getPriceInfo(sku);
+            Sku sku = Sku.of(req.sku());
+            ProductPriceProvider.PriceInfo priceInfo = priceMap.get(sku);
             
-            if (!priceInfo.exists()) {
-                throw new IllegalArgumentException("SKU not found in catalog: " + sku.value());
+            if (priceInfo == null || !priceInfo.exists()) {
+                throw new DomainRuleViolation("SKU not found in catalog: " + sku.value());
             }
 
-            OrderLineItem item = new OrderLineItem(
-                    new ProductId(req.productId()),
+            order.addLineItem(
+                    ProductId.of(req.productId()),
                     sku,
                     Quantity.of(req.quantity()),
                     priceInfo.price()
@@ -46,8 +46,8 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Order placeOrderFallback(UUID customerId, List<OrderLineItemRequest> requests, Throwable t) {
-        log.error("Circuit breaker 'catalogService' triggered during placeOrder for customer: {}", customerId, t);
+    public Order placeOrderFallback(CustomerId customerId, List<OrderLineItemRequest> requests, Throwable t) {
+        log.error("Circuit breaker 'catalogService' triggered during placeOrder for customer: {}", customerId.value(), t);
         throw new RuntimeException("Catalog service is currently unavailable. Please try again later.", t);
     }
 }

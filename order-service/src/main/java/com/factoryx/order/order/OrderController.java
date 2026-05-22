@@ -17,16 +17,17 @@ public class OrderController {
 
     private final OrderService orderService;
     private final OrderQueryService orderQueryService;
+    private final OrderDtoMapper orderDtoMapper;
 
     @PostMapping
-    public ResponseEntity<Order> placeOrder(@RequestBody PlaceOrderRequest request) {
-        Order order = orderService.placeOrder(request.customerId(), request.items());
-        return ResponseEntity.status(HttpStatus.CREATED).body(order);
+    public ResponseEntity<OrderDto> placeOrder(@RequestBody PlaceOrderRequest request) {
+        Order order = orderService.placeOrder(CustomerId.of(request.customerId()), request.items());
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderDtoMapper.toDto(order));
     }
 
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<Object> getOrdersByCustomer(@PathVariable UUID customerId) {
-        return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(customerId));
+        return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(CustomerId.of(customerId)));
     }
 
     public record PlaceOrderRequest(UUID customerId, List<OrderLineItemRequest> items) {

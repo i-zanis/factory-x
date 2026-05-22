@@ -34,8 +34,8 @@ public class OrderLineItem {
     @Embedded
     private Money price;
 
-    public OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
-        this.id = new OrderLineItemId(UUID.randomUUID());
+    OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
+        this.id = OrderLineItemId.generate();
         this.productId = Require.nonNull(productId, "Product ID");
         this.sku = Require.nonNull(sku, "SKU");
 

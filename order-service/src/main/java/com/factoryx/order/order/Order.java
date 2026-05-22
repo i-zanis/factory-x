@@ -3,7 +3,9 @@ package com.factoryx.order.order;
 import com.factoryx.common.domain.AuditInfo;
 import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
+import com.factoryx.common.domain.Quantity;
 import com.factoryx.common.domain.Require;
+import com.factoryx.common.domain.Sku;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -61,11 +63,11 @@ public class Order extends AbstractAggregateRoot<Order> {
         return Collections.unmodifiableList(lineItems);
     }
 
-    public void addLineItem(OrderLineItem item) {
+    public void addLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
         if (this.status != OrderStatus.PENDING) {
             throw new DomainRuleViolation("Cannot add items to " + this.status + " order");
         }
-        this.lineItems.add(item);
+        this.lineItems.add(new OrderLineItem(productId, sku, quantity, price));
     }
 
     public OrderCreatedEvent place() {
@@ -73,13 +75,24 @@ public class Order extends AbstractAggregateRoot<Order> {
             throw new DomainRuleViolation("Order already " + this.status);
         }
 
-        // Answer: Domain entities must be framework-agnostic. lineItems is initialized to ArrayList, so it's never null. Native .isEmpty() is the pure Java way.
         Require.notEmpty(this.lineItems, "Cannot place empty order");
         this.totalPrice = this.lineItems.stream()
                 .map(OrderLineItem::subtotal)
                 .reduce(Money.ZERO, Money::add);
 
-        OrderCreatedEvent event = new OrderCreatedEvent(this);
+        OrderCreatedEvent event = new OrderCreatedEvent(
+                this.id.value(),
+                this.customerId.value(),
+                this.totalPrice,
+                this.lineItems.stream()
+                        .map(item -> new OrderCreatedEvent.OrderLineItemInfo(
+                                item.getProductId().value(),
+                                item.getSku(),
+                                item.getQuantity(),
+                                item.getPrice()
+                        ))
+                        .toList()
+        );
         registerEvent(event);
         return event;
     }

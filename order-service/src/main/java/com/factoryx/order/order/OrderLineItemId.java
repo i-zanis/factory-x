@@ -19,6 +19,14 @@ public class OrderLineItemId implements Serializable {
         this.value = Require.nonNull(value, "OrderLineItemId");
     }
 
+    public static OrderLineItemId of(UUID value) {
+        return new OrderLineItemId(value);
+    }
+
+    public static OrderLineItemId generate() {
+        return new OrderLineItemId(UUID.randomUUID());
+    }
+
     public UUID value() {
         return value;
     }
