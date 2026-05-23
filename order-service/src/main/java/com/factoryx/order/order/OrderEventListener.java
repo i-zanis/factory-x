@@ -27,17 +27,17 @@ public class OrderEventListener {
 
     @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void handleOrderCreatedForOutbox(OrderCreatedEvent event) {
-        log.info("Creating outbox event for order: {}", event.orderId());
+        log.info("Creating outbox event for order: {}", event.orderId().value());
         try {
             OutboxEvent outboxEvent = OutboxEvent.from(
                     AggregateType.of("Order"),
-                    event.orderId().toString(),
+                    event.orderId().value().toString(),
                     EventType.of("OrderCreated"),
                     objectMapper.writeValueAsString(event)
             );
             outboxRepository.save(outboxEvent);
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize order for outbox: {}", event.orderId(), e);
+            log.error("Failed to serialize order for outbox: {}", event.orderId().value(), e);
             throw new DomainRuleViolation("Outbox serialization failure", e);
         }
     }
@@ -45,12 +45,12 @@ public class OrderEventListener {
     @Async
     @EventListener
     public void handleOrderCreatedForRedis(OrderCreatedEvent event) {
-        log.info("Updating Redis read-model for order: {}", event.orderId());
+        log.info("Updating Redis read-model for order: {}", event.orderId().value());
         try {
-            String key = "order:view:" + event.customerId();
+            String key = "order:view:" + event.customerId().value();
             redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(event));
         } catch (JsonProcessingException e) {
-            log.error("Failed to update Redis read-model for order: {}", event.orderId(), e);
+            log.error("Failed to update Redis read-model for order: {}", event.orderId().value(), e);
         }
     }
 }

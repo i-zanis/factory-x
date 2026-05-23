@@ -34,7 +34,7 @@ public class OrderLineItem {
     @Embedded
     private Money price;
 
-    OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
+    protected OrderLineItem(ProductId productId, Sku sku, Quantity quantity, Money price) {
         this.id = OrderLineItemId.generate();
         this.productId = Require.nonNull(productId, "Product ID");
         this.sku = Require.nonNull(sku, "SKU");
@@ -48,6 +48,10 @@ public class OrderLineItem {
         if (price.isZero()) {
             throw new DomainRuleViolation("Price must be greater than zero");
         }
+    }
+
+    public static OrderLineItem create(ProductId productId, Sku sku, Quantity quantity, Money price) {
+        return new OrderLineItem(productId, sku, quantity, price);
     }
 
     public Money subtotal() {

@@ -52,11 +52,11 @@ public class Order extends AbstractAggregateRoot<Order> {
         this.id = Require.nonNull(id, "Order ID");
         this.customerId = Require.nonNull(customerId, "Customer ID");
         this.status = status != null ? status : OrderStatus.PENDING;
-        this.auditInfo = auditInfo != null ? auditInfo : new AuditInfo();
+        this.auditInfo = auditInfo != null ? auditInfo : AuditInfo.create();
     }
 
     public static Order create(CustomerId customerId) {
-        return new Order(OrderId.generate(), customerId, OrderStatus.PENDING, new AuditInfo());
+        return new Order(OrderId.generate(), customerId, OrderStatus.PENDING, AuditInfo.create());
     }
 
     public List<OrderLineItem> getLineItems() {
@@ -67,7 +67,7 @@ public class Order extends AbstractAggregateRoot<Order> {
         if (this.status != OrderStatus.PENDING) {
             throw new DomainRuleViolation("Cannot add items to " + this.status + " order");
         }
-        this.lineItems.add(new OrderLineItem(productId, sku, quantity, price));
+        this.lineItems.add(OrderLineItem.create(productId, sku, quantity, price));
     }
 
     public OrderCreatedEvent place() {
@@ -80,13 +80,13 @@ public class Order extends AbstractAggregateRoot<Order> {
                 .map(OrderLineItem::subtotal)
                 .reduce(Money.ZERO, Money::add);
 
-        OrderCreatedEvent event = new OrderCreatedEvent(
-                this.id.value(),
-                this.customerId.value(),
+        OrderCreatedEvent event = OrderCreatedEvent.of(
+                this.id,
+                this.customerId,
                 this.totalPrice,
                 this.lineItems.stream()
-                        .map(item -> new OrderCreatedEvent.OrderLineItemInfo(
-                                item.getProductId().value(),
+                        .map(item -> OrderCreatedEvent.OrderLineItemInfo.of(
+                                item.getProductId(),
                                 item.getSku(),
                                 item.getQuantity(),
                                 item.getPrice()
