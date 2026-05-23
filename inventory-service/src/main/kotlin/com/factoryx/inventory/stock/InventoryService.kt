@@ -36,8 +36,19 @@ class InventoryService(
 
     @Transactional
     fun updateStocks(updates: List<Pair<Sku, Int>>) {
+        val skus = updates.map { it.first }
+        val stockLevels = stockLevelRepository.findAllById(skus).associateBy { it.sku }
+
         updates.forEach { (sku, quantityChange) ->
-            updateStock(sku, quantityChange)
+            val stockLevel = stockLevels[sku] ?: throw DomainRuleViolation("SKU not found: ${sku.value()}")
+
+            if (quantityChange >= 0) {
+                stockLevel.replenish(Quantity.of(quantityChange))
+            } else {
+                stockLevel.consume(Quantity.of(abs(quantityChange)))
+            }
         }
+
+        stockLevelRepository.saveAll(stockLevels.values)
     }
 }

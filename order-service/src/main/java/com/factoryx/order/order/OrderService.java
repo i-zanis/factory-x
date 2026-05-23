@@ -21,8 +21,15 @@ public class OrderService {
 
     @Transactional
     @CircuitBreaker(name = "catalogService", fallbackMethod = "placeOrderFallback")
-    public Order placeOrder(UUID customerId, List<OrderLineItemRequest> requests) {
-        Order order = Order.create(new CustomerId(customerId));
+    public Order placeOrder(CustomerId customerId, List<OrderLineItemRequest> requests) {
+        Order order = Order.create(customerId);
+
+        // TODO(DDD-Blueprint): Fixed N+1 RPC Problem by using batch lookup.
+        List<Sku> skus = requests.stream()
+                .map(req -> Sku.of(req.sku()))
+                .toList();
+
+        Map<Sku, ProductPriceProvider.PriceInfo> priceMap = priceProvider.getPriceInfos(skus);
 
         for (OrderLineItemRequest req : requests) {
             Sku sku = Sku.of(req.sku());
