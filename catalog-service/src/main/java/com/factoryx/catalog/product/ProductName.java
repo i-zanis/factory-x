@@ -12,4 +12,8 @@ public record ProductName(String value) {
         Require.argument(isAsciiPrintable(value), "Product name contains invalid characters");
         value = normalizeSpace(value);
     }
+
+    public static ProductName of(String value) {
+        return new ProductName(value);
+    }
 }

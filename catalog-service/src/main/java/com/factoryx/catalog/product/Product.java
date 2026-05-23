@@ -54,12 +54,12 @@ public class Product extends AbstractAggregateRoot<Product> {
         this.price = Require.nonNull(price, "Price");
         Require.argument(!price.isZero(), "Price must be > 0");
         
-        this.auditInfo = new AuditInfo();
-        registerEvent(new ProductCreatedEvent(this.id, this.price));
+        this.auditInfo = AuditInfo.create();
+        registerEvent(ProductCreatedEvent.of(this.id, this.price));
     }
 
     public static Product create(Sku sku, String name, Money price) {
-        return new Product(ProductId.generate(), sku, new ProductName(name), price);
+        return new Product(ProductId.generate(), sku, ProductName.of(name), price);
     }
 
     public void describe(String description) {
@@ -77,7 +77,7 @@ public class Product extends AbstractAggregateRoot<Product> {
 
         Money oldPrice = this.price;
         this.price = newPrice;
-        registerEvent(new ProductPriceChangedEvent(this.id, oldPrice, newPrice));
+        registerEvent(ProductPriceChangedEvent.of(this.id, oldPrice, newPrice));
     }
 
     public void applyDiscount(int percent) {
