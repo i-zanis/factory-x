@@ -24,19 +24,19 @@ public class InventoryResponseListener {
     public void handleInventoryResponse(String message) {
         try {
             InventoryEvent event = objectMapper.readValue(message, InventoryEvent.class);
-            log.info("Received inventory response for order: {}. Status: {}", new OrderId(event.orderId()), event.status());
+            log.info("Received inventory response for order: {}. Status: {}", event.orderId().value(), event.status());
 
-            orderRepository.findById(new OrderId(event.orderId())).ifPresent(order -> {
+            orderRepository.findById(event.orderId()).ifPresent(order -> {
                 if ("SUCCESS".equals(event.status())) order.approve();
                 else order.reject();
                 orderRepository.save(order);
-                log.info("Order: {} updated to status: {}", order.getId(), order.getStatus());
+                log.info("Order: {} updated to status: {}", order.getId().value(), order.getStatus());
             });
         } catch (Exception e) {
             log.error("Failed to process inventory response", e);
         }
     }
 
-    public record InventoryEvent(UUID orderId, String status) {
+    public record InventoryEvent(OrderId orderId, String status) {
     }
 }
