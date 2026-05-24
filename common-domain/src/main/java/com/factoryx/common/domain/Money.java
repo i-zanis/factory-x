@@ -21,16 +21,12 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
         Require.nonNegative(amount.signum(), "Negative money forbidden");
     }
 
-    public static Money of(double value) {
-        return new Money(BigDecimal.valueOf(value), Currency.getInstance("USD"));
+    public Money(double value) {
+        this(BigDecimal.valueOf(value), Currency.getInstance("USD"));
     }
 
-    public static Money of(BigDecimal value) {
-        return new Money(value, Currency.getInstance("USD"));
-    }
-
-    public static Money of(BigDecimal value, Currency currency) {
-        return new Money(value, currency);
+    public Money(BigDecimal value) {
+        this(value, Currency.getInstance("USD"));
     }
 
     public boolean isZero() {

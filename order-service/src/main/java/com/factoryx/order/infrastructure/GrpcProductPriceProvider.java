@@ -24,7 +24,7 @@ public class GrpcProductPriceProvider implements ProductPriceProvider {
         PriceResponse response = catalogStub.getProductPrice(
                 PriceRequest.newBuilder().setSku(sku.value()).build()
         );
-        return PriceInfo.of(Money.of(response.getPrice()), response.getExists());
+        return new PriceInfo(new Money(response.getPrice()), response.getExists());
     }
 
     @Override
@@ -37,8 +37,8 @@ public class GrpcProductPriceProvider implements ProductPriceProvider {
 
         return response.getPricesList().stream()
                 .collect(Collectors.toMap(
-                        pr -> Sku.of(pr.getSku()),
-                        pr -> PriceInfo.of(Money.of(pr.getPrice()), pr.getExists())
+                        pr -> new Sku(pr.getSku()),
+                        pr -> new PriceInfo(new Money(pr.getPrice()), pr.getExists())
                 ));
     }
 }

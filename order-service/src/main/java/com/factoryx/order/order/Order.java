@@ -80,12 +80,12 @@ public class Order extends AbstractAggregateRoot<Order> {
                 .map(OrderLineItem::subtotal)
                 .reduce(Money.ZERO, Money::add);
 
-        OrderCreatedEvent event = OrderCreatedEvent.of(
+        OrderCreatedEvent event = new OrderCreatedEvent(
                 this.id,
                 this.customerId,
                 this.totalPrice,
                 this.lineItems.stream()
-                        .map(item -> OrderCreatedEvent.OrderLineItemInfo.of(
+                        .map(item -> new OrderCreatedEvent.OrderLineItemInfo(
                                 item.getProductId(),
                                 item.getSku(),
                                 item.getQuantity(),

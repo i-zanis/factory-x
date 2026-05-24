@@ -20,7 +20,7 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
     public void getProductPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver) {
         String skuValue = request.getSku();
 
-        productService.getProductBySku(Sku.of(skuValue))
+        productService.getProductBySku(new Sku(skuValue))
                 .ifPresentOrElse(
                         product -> {
                             PriceResponse response = PriceResponse.newBuilder()

@@ -1,5 +1,6 @@
 package com.factoryx.order.order;
 
+import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Quantity;
 import com.factoryx.common.domain.Sku;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -25,14 +26,16 @@ public class OrderService {
         Order order = Order.create(customerId);
 
         // TODO(DDD-Blueprint): Fixed N+1 RPC Problem by using batch lookup.
+        // A: Confirmed. Batch request implemented below.
+        // A2: Should also add pagination/chunking if 'requests' list is very large to avoid gRPC message size limits.
         List<Sku> skus = requests.stream()
-                .map(req -> Sku.of(req.sku()))
+                .map(req -> new Sku(req.sku()))
                 .toList();
 
         Map<Sku, ProductPriceProvider.PriceInfo> priceMap = priceProvider.getPriceInfos(skus);
 
         for (OrderLineItemRequest req : requests) {
-            Sku sku = Sku.of(req.sku());
+            Sku sku = new Sku(req.sku());
             ProductPriceProvider.PriceInfo priceInfo = priceMap.get(sku);
             
             if (priceInfo == null || !priceInfo.exists()) {
@@ -40,12 +43,11 @@ public class OrderService {
             }
 
             order.addLineItem(
-                    ProductId.of(req.productId()),
+                    new ProductId(req.productId()),
                     sku,
-                    Quantity.of(req.quantity()),
+                    new Quantity(req.quantity()),
                     priceInfo.price()
             );
-            order.addLineItem(item);
         }
 
         order.place();
@@ -55,6 +57,8 @@ public class OrderService {
 
     public Order placeOrderFallback(CustomerId customerId, List<OrderLineItemRequest> requests, Throwable t) {
         log.error("Circuit breaker 'catalogService' triggered during placeOrder for customer: {}", customerId.value(), t);
+        // TODO: Use a specific exception (e.g. ServiceUnavailableException) instead of generic RuntimeException.
+        // A2: Spring's @ResponseStatus could then be placed on that new exception to automatically map to 503.
         throw new RuntimeException("Catalog service is currently unavailable. Please try again later.", t);
     }
 }

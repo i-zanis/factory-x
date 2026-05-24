@@ -16,8 +16,5 @@ public interface ProductPriceProvider {
     Map<Sku, PriceInfo> getPriceInfos(List<Sku> skus);
 
     record PriceInfo(Money price, boolean exists) {
-        public static PriceInfo of(Money price, boolean exists) {
-            return new PriceInfo(price, exists);
-        }
     }
 }

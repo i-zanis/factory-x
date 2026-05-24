@@ -21,13 +21,13 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> placeOrder(@RequestBody PlaceOrderRequest request) {
-        Order order = orderService.placeOrder(CustomerId.of(request.customerId()), request.items());
+        Order order = orderService.placeOrder(new CustomerId(request.customerId()), request.items());
         return ResponseEntity.status(HttpStatus.CREATED).body(orderDtoMapper.toDto(order));
     }
 
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<Object> getOrdersByCustomer(@PathVariable UUID customerId) {
-        return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(CustomerId.of(customerId)));
+        return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(new CustomerId(customerId)));
     }
 
     public record PlaceOrderRequest(UUID customerId, List<OrderLineItemRequest> items) {

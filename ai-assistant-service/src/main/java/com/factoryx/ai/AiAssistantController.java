@@ -17,11 +17,11 @@ public class AiAssistantController {
 
     @GetMapping("/chat")
     public String chat(@RequestParam String message) {
-        return aiAssistantService.chat(PromptMessage.of(message));
+        return aiAssistantService.chat(new PromptMessage(message));
     }
 
     @GetMapping("/stream")
     public Flux<String> streamChat(@RequestParam String message) {
-        return aiAssistantService.streamChat(PromptMessage.of(message));
+        return aiAssistantService.streamChat(new PromptMessage(message));
     }
 }

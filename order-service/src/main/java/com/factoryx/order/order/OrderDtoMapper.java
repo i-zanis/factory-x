@@ -11,8 +11,8 @@ public class OrderDtoMapper {
         return new OrderDto(
                 order.getId().value(),
                 order.getCustomerId().value(),
-                order.getTotal(),
-                order.getItems().stream()
+                order.getTotalPrice(),
+                order.getLineItems().stream()
                         .map(this::toDto)
                         .collect(Collectors.toList())
         );
@@ -21,10 +21,10 @@ public class OrderDtoMapper {
     private OrderLineItemDto toDto(OrderLineItem item) {
         return new OrderLineItemDto(
                 item.getSku(),
-                item.getName(),
+                null,
                 item.getPrice(),
                 item.getQuantity(),
-                item.getSubtotal()
+                item.subtotal()
         );
     }
 }

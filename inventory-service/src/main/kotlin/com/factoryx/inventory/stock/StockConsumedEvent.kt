@@ -8,3 +8,4 @@ data class StockConsumedEvent(
     val oldQuantity: Quantity,
     val newQuantity: Quantity
 )
+

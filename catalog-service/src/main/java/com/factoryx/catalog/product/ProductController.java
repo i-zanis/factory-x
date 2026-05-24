@@ -38,7 +38,7 @@ public class ProductController implements ProductsApi {
 
     @Override
     public ResponseEntity<com.factoryx.catalog.model.Product> getProductById(UUID id) {
-        return productService.getProductById(ProductId.of(id))
+        return productService.getProductById(new ProductId(id))
                 .map(ProductAssembler::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

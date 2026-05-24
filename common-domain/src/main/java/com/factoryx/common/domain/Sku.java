@@ -12,10 +12,6 @@ public record Sku(String value) {
         Require.matches(value, SKU_PATTERN, "Invalid SKU format. Expected AAA-0000");
     }
 
-    public static Sku of(String value) {
-        return new Sku(value);
-    }
-
     public String category() {
         return value.substring(0, value.indexOf('-'));
     }

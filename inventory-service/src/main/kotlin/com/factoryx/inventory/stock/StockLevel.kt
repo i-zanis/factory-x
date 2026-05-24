@@ -34,7 +34,7 @@ class StockLevel private constructor(
         val oldQuantity = this.quantity
         this.quantity = this.quantity.add(quantityToAdd)
 
-        registerEvent(StockReplenishedEvent.of(sku, oldQuantity, this.quantity))
+        registerEvent(StockReplenishedEvent(sku, oldQuantity, this.quantity))
     }
 
     fun consume(quantityToSubtract: Quantity) {
@@ -46,7 +46,7 @@ class StockLevel private constructor(
         val oldQuantity = this.quantity
         this.quantity = this.quantity.subtract(quantityToSubtract)
 
-        registerEvent(StockConsumedEvent.of(sku, oldQuantity, this.quantity))
+        registerEvent(StockConsumedEvent(sku, oldQuantity, this.quantity))
     }
 
     companion object {

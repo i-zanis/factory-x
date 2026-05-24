@@ -8,8 +8,4 @@ public record EventType(String value) {
     public EventType {
         Require.text(value, "Event type");
     }
-
-    public static EventType of(String value) {
-        return new EventType(value);
-    }
 }

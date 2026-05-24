@@ -14,25 +14,25 @@ class InventoryController(
 
     @GetMapping("/{sku}")
     fun getStock(@PathVariable sku: String): ResponseEntity<StockLevel> {
-        val stock = stockLevelRepository.findById(Sku.of(sku))
+        val stock = stockLevelRepository.findById(Sku(sku))
         return stock.map { ResponseEntity.ok(it) }.orElseGet { ResponseEntity.notFound().build() }
     }
 
     @PostMapping("/{sku}/initialize")
     fun initStock(@PathVariable sku: String, @RequestParam quantity: Int): ResponseEntity<Void> {
-        inventoryService.initializeStock(Sku.of(sku), Quantity.of(quantity))
+        inventoryService.initializeStock(Sku(sku), Quantity(quantity))
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/{sku}/replenish")
     fun replenish(@PathVariable sku: String, @RequestParam quantity: Int): ResponseEntity<Void> {
-        inventoryService.updateStock(Sku.of(sku), quantity)
+        inventoryService.updateStock(Sku(sku), quantity)
         return ResponseEntity.ok().build()
     }
 
     @PostMapping("/{sku}/consume")
     fun consume(@PathVariable sku: String, @RequestParam quantity: Int): ResponseEntity<Void> {
-        inventoryService.updateStock(Sku.of(sku), -quantity)
+        inventoryService.updateStock(Sku(sku), -quantity)
         return ResponseEntity.ok().build()
     }
 }

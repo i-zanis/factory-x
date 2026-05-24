@@ -26,9 +26,9 @@ class InventoryService(
             stockLevelRepository.findById(sku).orElseThrow { DomainRuleViolation("SKU not found: ${sku.value()}") }
 
         if (quantityChange >= 0) {
-            stockLevel.replenish(Quantity.of(quantityChange))
+            stockLevel.replenish(Quantity(quantityChange))
         } else {
-            stockLevel.consume(Quantity.of(abs(quantityChange)))
+            stockLevel.consume(Quantity(abs(quantityChange)))
         }
         
         stockLevelRepository.save(stockLevel)
@@ -43,9 +43,9 @@ class InventoryService(
             val stockLevel = stockLevels[sku] ?: throw DomainRuleViolation("SKU not found: ${sku.value()}")
 
             if (quantityChange >= 0) {
-                stockLevel.replenish(Quantity.of(quantityChange))
+                stockLevel.replenish(Quantity(quantityChange))
             } else {
-                stockLevel.consume(Quantity.of(abs(quantityChange)))
+                stockLevel.consume(Quantity(abs(quantityChange)))
             }
         }
 

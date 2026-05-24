@@ -9,10 +9,6 @@ public record OrderId(UUID value) {
     public OrderId {
         if (value == null) throw new DomainRuleViolation("OrderId cannot be null");
     }
-    
-    public static OrderId of(UUID value) {
-        return new OrderId(value);
-    }
 
     public static OrderId generate() {
         return new OrderId(UUID.randomUUID());

@@ -17,10 +17,6 @@ public record Quantity(Integer value) implements Comparable<Quantity> {
         Require.nonNegative(value, "Quantity cannot be negative");
     }
 
-    public static Quantity of(int value) {
-        return new Quantity(value);
-    }
-
     public static Quantity parse(String value) {
         Require.text(value, "Quantity string cannot be empty");
 

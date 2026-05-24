@@ -29,16 +29,16 @@ public class OrderEventListener {
     public void handleOrderCreatedForOutbox(OrderCreatedEvent event) {
         log.info("Creating outbox event for order: {}", event.orderId().value());
         try {
-            OutboxEvent outboxEvent = OutboxEvent.from(
-                    AggregateType.of("Order"),
+            OutboxEvent outboxEvent = new OutboxEvent(
+                    new AggregateType("Order"),
                     event.orderId().value().toString(),
-                    EventType.of("OrderCreated"),
+                    new EventType("OrderCreated"),
                     objectMapper.writeValueAsString(event)
             );
             outboxRepository.save(outboxEvent);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order for outbox: {}", event.orderId().value(), e);
-            throw new DomainRuleViolation("Outbox serialization failure", e);
+            throw new DomainRuleViolation("Outbox serialization failure: " + e.getMessage());
         }
     }
 
