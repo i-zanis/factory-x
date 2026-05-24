@@ -16,7 +16,7 @@ import java.util.List;
 
 @Embeddable
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class AuditInfo {
 
     @CreatedDate
@@ -41,6 +41,10 @@ public class AuditInfo {
 
     @Version
     private Integer version;
+
+    public static AuditInfo create() {
+        return new AuditInfo();
+    }
 
     public void touch() {
         updatedAt = Instant.now();

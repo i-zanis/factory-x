@@ -123,10 +123,6 @@ public record Quantity(Integer value) implements Comparable<Quantity> {
         return value.longValue();
     }
 
-    public double toDouble() {
-        return value.doubleValue();
-    }
-
     public BigDecimal toBigDecimal() {
         return BigDecimal.valueOf(value);
     }

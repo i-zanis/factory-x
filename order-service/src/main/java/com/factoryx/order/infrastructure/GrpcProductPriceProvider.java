@@ -19,7 +19,6 @@ public class GrpcProductPriceProvider implements ProductPriceProvider {
     @GrpcClient("catalog-service")
     private InternalCatalogServiceGrpc.InternalCatalogServiceBlockingStub catalogStub;
 
-    // TODO(DDD-Blueprint): Ensure PriceInfo is a pure Value Object mapping from Published Language (gRPC response) to pure Ubiquitous Language.
     @Override
     public PriceInfo getPriceInfo(Sku sku) {
         PriceResponse response = catalogStub.getProductPrice(
