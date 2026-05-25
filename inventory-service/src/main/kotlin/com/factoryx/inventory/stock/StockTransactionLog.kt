@@ -7,7 +7,7 @@ import java.util.*
 
 @Entity
 @Table(name = "stock_transaction_logs")
-class StockTransactionLog private constructor(
+class StockTransactionLog(
     @Id
     val id: UUID = UUID.randomUUID(),
 
@@ -20,11 +20,4 @@ class StockTransactionLog private constructor(
     val quantityChange: Quantity,
 
     val reason: String
-) {
-    companion object {
-        @JvmStatic
-        fun log(sku: Sku, change: Quantity, reason: String): StockTransactionLog {
-            return StockTransactionLog(sku = sku, quantityChange = change, reason = reason)
-        }
-    }
-}
+)

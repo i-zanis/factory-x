@@ -35,7 +35,7 @@ public class OutboxEvent {
     @Column(nullable = false)
     private Instant createdAt;
 
-    protected OutboxEvent(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
+    public OutboxEvent(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
         this.id = UUID.randomUUID();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;

@@ -12,8 +12,8 @@ class StockEventListener(
         val change = event.newQuantity.value() - event.oldQuantity.value()
         stockTransactionLogRepository.save(
             StockTransactionLog(
-                sku = event.sku.value(),
-                quantityChange = change,
+                sku = event.sku,
+                quantityChange = com.factoryx.common.domain.Quantity(change),
                 reason = "REPLENISH"
             )
         )
@@ -21,11 +21,11 @@ class StockEventListener(
 
     @EventListener
     fun onStockConsumed(event: StockConsumedEvent) {
-        val change = event.newQuantity.value() - event.oldQuantity.value()
+        val change = event.oldQuantity.value() - event.newQuantity.value()
         stockTransactionLogRepository.save(
             StockTransactionLog(
-                sku = event.sku.value(),
-                quantityChange = change,
+                sku = event.sku,
+                quantityChange = com.factoryx.common.domain.Quantity(change),
                 reason = "CONSUME"
             )
         )
