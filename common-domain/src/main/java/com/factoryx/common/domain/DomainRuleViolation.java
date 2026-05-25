@@ -9,9 +9,4 @@ public class DomainRuleViolation extends RuntimeException {
     public DomainRuleViolation(String message) {
         super(message, null, false, false);
     }
-
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-        return this;
-    }
 }

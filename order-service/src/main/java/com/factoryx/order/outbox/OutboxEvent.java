@@ -43,8 +43,4 @@ public class OutboxEvent {
         this.payload = payload;
         this.createdAt = Instant.now();
     }
-
-    public static OutboxEvent from(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
-        return new OutboxEvent(aggregateType, aggregateId, type, payload);
-    }
 }

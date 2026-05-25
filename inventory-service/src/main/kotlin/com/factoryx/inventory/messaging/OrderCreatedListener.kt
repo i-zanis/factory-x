@@ -29,8 +29,9 @@ class OrderCreatedListener(
 
                 try {
                     val updates = orderData.lineItems.map { item ->
-                        Sku.of(item.sku) to -item.quantity
+                        Sku(item.sku) to -item.quantity
                     }
+                    inventoryService.updateStocks(updates)
                     sendResponse(orderId, "SUCCESS")
                 } catch (e: Exception) {
                     log.error("Failed to update stock for order: $orderId", e)

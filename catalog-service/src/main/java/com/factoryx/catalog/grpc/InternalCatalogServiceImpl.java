@@ -45,7 +45,7 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
     @Override
     public void getProductPrices(BatchPriceRequest request, StreamObserver<BatchPriceResponse> responseObserver) {
         List<Sku> skus = request.getSkusList().stream()
-                .map(Sku::of)
+                .map(Sku::new)
                 .toList();
 
         Map<String, PriceResponse> productMap = productService.getProductsBySkus(skus).stream()
