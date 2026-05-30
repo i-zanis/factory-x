@@ -12,10 +12,7 @@ import org.hibernate.annotations.SoftDelete;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 
 import static org.apache.commons.lang3.StringUtils.isAsciiPrintable;
 import static org.apache.commons.lang3.StringUtils.normalizeSpace;
@@ -38,6 +35,7 @@ public class Product extends AbstractAggregateRoot<Product> {
     @Embedded
     private ProductName name;
 
+    @Nullable
     private String description;
 
     @Embedded
@@ -62,7 +60,7 @@ public class Product extends AbstractAggregateRoot<Product> {
         return new Product(ProductId.generate(), sku, new ProductName(name), price);
     }
 
-    public void describe(String description) {
+    public void describe(@Nullable String description) {
         if (description != null && !description.isBlank()) {
             this.description = normalizeSpace(description);
             Require.argument(isAsciiPrintable(this.description), "Description contains invalid characters");
