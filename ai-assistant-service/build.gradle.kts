@@ -3,6 +3,10 @@ plugins {
     id("org.graalvm.buildtools.native")
 }
 
+springBoot {
+    mainClass.set("com.factoryx.ai.AiAssistantApplication")
+}
+
 dependencies {
     implementation(project(":common-domain"))
     implementation("org.springframework.boot:spring-boot-starter-web")

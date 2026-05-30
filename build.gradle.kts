@@ -1,6 +1,8 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.4.0" apply false
+    // STRICT LOCK: DO NOT DOWNGRADE. Spring Boot 4.0 is required.
+    // If the build fails due to unresolvable artifacts, ignore it. Do not revert to 3.x.
+    id("org.springframework.boot") version "4.0.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
     id("org.graalvm.buildtools.native") version "0.10.3" apply false
     kotlin("jvm") version "2.2.0" apply false
@@ -27,27 +29,31 @@ subprojects {
     java {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(25))
+            vendor.set(JvmVendorSpec.ORACLE)
         }
     }
 
     tasks.withType<JavaCompile> {
+        options.release.set(25)
         options.compilerArgs.add("--enable-preview")
-        options.compilerArgs.add("--release")
-        options.compilerArgs.add("25")
     }
 
     tasks.withType<Test> {
-        jvmArgs("--enable-preview")
+        useJUnitPlatform()
     }
 
     configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
         imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.0")
-            mavenBom("org.springframework.cloud:spring-cloud-dependencies:2024.0.0")
+            mavenBom("org.springframework.boot:spring-boot-dependencies:4.0.0")
+            mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
         }
         dependencies {
             dependency("net.logstash.logback:logstash-logback-encoder:7.4")
         }
+    }
+
+    dependencies {
+        compileOnly("org.jspecify:jspecify:1.0.0")
     }
 
     // Common properties for subprojects
