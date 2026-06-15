@@ -8,9 +8,9 @@ spring:
       enabled: true
   datasource:
     # TODO: Externalize hardcoded localhost
-    url: jdbc:postgresql://localhost:5432/factoryx
-    username: factory
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/factoryx}
+    username: ${SPRING_DATASOURCE_USERNAME:factory}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
   jpa:
     hibernate:
       ddl-auto: update

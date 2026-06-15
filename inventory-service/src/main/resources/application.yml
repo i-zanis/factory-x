@@ -7,6 +7,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/factoryx
     username: factory
+    # TODO: Externalize hardcoded password
     password: password
   jpa:
     hibernate:

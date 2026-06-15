@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -21,25 +22,32 @@ public class AuditInfo {
 
     @CreatedDate
     @Column(updatable = false)
+    @Nullable
     private Instant createdAt;
 
     @LastModifiedDate
+    @Nullable
     private Instant updatedAt;
 
     @CreatedBy
     @Column(updatable = false)
+    @Nullable
     private String createdBy;
 
     @LastModifiedBy
+    @Nullable
     private String updatedBy;
 
     @Column(updatable = false)
+    @Nullable
     private Instant deletedAt;
 
     @Column(updatable = false)
+    @Nullable
     private String deletedBy;
 
     @Version
+    @Nullable
     private Integer version;
 
     public static AuditInfo create() {
