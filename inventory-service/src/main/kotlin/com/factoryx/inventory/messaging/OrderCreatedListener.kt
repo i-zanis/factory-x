@@ -19,27 +19,27 @@ class OrderCreatedListener(
 
     @KafkaListener(topics = ["server1.public.outbox_events"], groupId = "inventory-group")
     fun handleOrderCreatedEvent(message: String) {
-        try {
-            val event = objectMapper.readValue(message, DebeziumEvent::class.java)
-            val after = event.payload.after
+        val event = objectMapper.readValue(message, DebeziumEvent::class.java)
+        val after = event.payload.after
 
-            if (EventType.ORDER_CREATED.name.equals(after.type, ignoreCase = true)) {
-                val orderData = objectMapper.readValue(after.payload, OrderCreatedDto::class.java)
-                val orderId = orderData.id
+        if (EventType.ORDER_CREATED.name.equals(after.type, ignoreCase = true)) {
+            val orderData = objectMapper.readValue(after.payload, OrderCreatedDto::class.java)
+            val orderId = orderData.id
 
-                try {
-                    val updates = orderData.lineItems.map { item ->
-                        Sku(item.sku) to -item.quantity
-                    }
-                    inventoryService.updateStocks(updates)
-                    sendResponse(orderId, "SUCCESS")
-                } catch (e: Exception) {
-                    log.error("Failed to update stock for order: $orderId", e)
-                    sendResponse(orderId, "FAILED")
+            try {
+                val updates = orderData.lineItems.map { item ->
+                    Sku(item.sku) to -item.quantity
                 }
+                inventoryService.updateStocks(updates)
+                sendResponse(orderId, "SUCCESS")
+            } catch (e: DomainRuleViolation) {
+                log.warn("Stock update rejected for order: $orderId - ${e.message}")
+                sendResponse(orderId, "FAILED")
             }
-        } catch (e: Exception) {
-            log.error("Failed to process order created event", e)
+            // TODO Consider retry or dead-letter queue for infra errors
+            // Use Spring Kafka DeadLetterPublishingRecoverer for automatic DLT routing.
+            // A: Yes. DLT is required to avoid losing events on transient DB failure.
+            // A2: Consider @Retryable on the inventoryService call before failing completely.
         }
     }
 

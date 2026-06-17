@@ -52,6 +52,9 @@ class StockLevel private constructor(
     companion object {
         @JvmStatic
         fun create(sku: Sku, initialQuantity: Quantity): StockLevel {
+            if (initialQuantity.value <= 0) {
+                throw DomainRuleViolation("Initial quantity must be strictly positive")
+            }
             return StockLevel(sku, initialQuantity)
         }
     }

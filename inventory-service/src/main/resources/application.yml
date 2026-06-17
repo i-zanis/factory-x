@@ -5,10 +5,10 @@ spring:
   application:
     name: inventory-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/factoryx
-    username: factory
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/factoryx}
+    username: ${SPRING_DATASOURCE_USERNAME:factory}
     # TODO: Externalize hardcoded password
-    password: password
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
   jpa:
     hibernate:
       ddl-auto: update

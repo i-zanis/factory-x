@@ -40,7 +40,7 @@ class InventoryService(
         val stockLevels = stockLevelRepository.findAllById(skus).associateBy { it.sku }
 
         updates.forEach { (sku, quantityChange) ->
-            val stockLevel = stockLevels[sku] ?: throw DomainRuleViolation("SKU not found: ${sku.value()}")
+            val stockLevel = stockLevels[sku] ?: throw IllegalArgumentException("SKU not found: ${sku.value()}")
 
             if (quantityChange >= 0) {
                 stockLevel.replenish(Quantity(quantityChange))
