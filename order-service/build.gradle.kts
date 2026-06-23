@@ -30,7 +30,7 @@ dependencies {
     implementation("net.devh:grpc-spring-boot-starter:${project.extra["grpcSpringBootVersion"]}")
     implementation("io.grpc:grpc-stub:${project.extra["grpcVersion"]}")
     implementation("io.grpc:grpc-protobuf:${project.extra["grpcVersion"]}")
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation("jakarta.annotation:jakarta.annotation-api")
 
     // [Lombok]
     compileOnly("org.projectlombok:lombok")
