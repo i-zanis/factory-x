@@ -19,7 +19,7 @@ public class ProductController implements ProductsApi {
     private final ProductService productService;
 
     @Override
-    public ResponseEntity<List<com.factoryx.catalog.model.Product>> listProducts() {
+    public ResponseEntity<List<Product>> listProducts() {
         var products = productService.getAllProducts().stream()
                 .map(ProductAssembler::toDto)
                 .toList();
@@ -36,7 +36,7 @@ public class ProductController implements ProductsApi {
     }
 
     @Override
-    public ResponseEntity<com.factoryx.catalog.model.Product> getProductById(UUID id) {
+    public ResponseEntity<Product> getProductById(UUID id) {
         return productService.getProductById(new ProductId(id))
                 .map(ProductAssembler::toDto)
                 .map(ResponseEntity::ok)

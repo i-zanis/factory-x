@@ -16,18 +16,17 @@ public class OutboxEvent {
 
     // TODO this is primitive
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "aggregate_type", nullable = false))
-    private AggregateType aggregateType;
+    @Column(name = "aggregate_type", nullable = false)
+    private String aggregateType;
 
     @Column(nullable = false)
     private String aggregateId;
 
-    @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "type", nullable = false))
-    private EventType type;
+    @Column(name = "type", nullable = false)
+    private String type;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String payload;
@@ -35,8 +34,7 @@ public class OutboxEvent {
     @Column(nullable = false)
     private Instant createdAt;
 
-    public OutboxEvent(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
-        this.id = UUID.randomUUID();
+    public OutboxEvent(String aggregateType, String aggregateId, String type, String payload) {
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.type = type;

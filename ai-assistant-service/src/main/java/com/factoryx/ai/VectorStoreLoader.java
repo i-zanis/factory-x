@@ -25,11 +25,12 @@ public class VectorStoreLoader implements ApplicationRunner {
         log.info("Starting to load RAG data from {}", factoryDocs.getFilename());
 
         TextReader textReader = new TextReader(factoryDocs);
-        textReader.get().forEach(document -> {
+        var docs = textReader.get();
+        docs.forEach(document -> {
             log.debug("Adding document: {}", document.getContent());
         });
 
-        vectorStore.accept(textReader.get());
+        vectorStore.accept(docs);
 
         log.info("Successfully loaded RAG data into Vector Store.");
     }

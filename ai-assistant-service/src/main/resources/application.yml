@@ -7,9 +7,10 @@ spring:
     virtual:
       enabled: true
   datasource:
-    url: jdbc:postgresql://localhost:5432/factoryx
-    username: factory
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/factoryx}
+    username: ${SPRING_DATASOURCE_USERNAME:factory}
+    # TODO: Externalize hardcoded password
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
