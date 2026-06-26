@@ -30,6 +30,8 @@ public class OrderController {
         return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(new CustomerId(customerId)));
     }
 
-    public record PlaceOrderRequest(UUID customerId, List<OrderLineItemRequest> items) {
+    public record PlaceOrderRequest(
+            @NotNull UUID customerId,
+            @NotEmpty List<@Valid OrderLineItemRequest> items) {
     }
 }

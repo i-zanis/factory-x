@@ -38,7 +38,7 @@ dependencies {
     implementation("io.grpc:grpc-protobuf:${project.extra["grpcVersion"]}")
 
     // Java Annotations (needed for gRPC generated code on Java 9+)
-    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation("jakarta.annotation:jakarta.annotation-api")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
@@ -89,5 +89,3 @@ sourceSets {
 tasks.named("compileJava") {
     dependsOn("openApiGenerate")
 }
-
-
