@@ -1,6 +1,6 @@
 package com.factoryx.catalog.grpc;
 
-import com.factoryx.catalog.product.ProductService;
+import com.factoryx.catalog.product.ProductQueryService;
 import com.factoryx.common.domain.Sku;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.InternalCatalogServiceImplBase {
 
-    private final ProductService productService;
+    private final ProductQueryService productQueryService;
 
     @Override
     public void getProductPrice(PriceRequest request, StreamObserver<PriceResponse> responseObserver) {
         String skuValue = request.getSku();
 
-        productService.getProductBySku(new Sku(skuValue))
+        productQueryService.getProductBySku(new Sku(skuValue))
                 .ifPresentOrElse(
                         product -> {
                             PriceResponse response = PriceResponse.newBuilder()
@@ -48,7 +48,7 @@ public class InternalCatalogServiceImpl extends InternalCatalogServiceGrpc.Inter
                 .map(Sku::new)
                 .toList();
 
-        Map<String, PriceResponse> productMap = productService.getProductsBySkus(skus).stream()
+        Map<String, PriceResponse> productMap = productQueryService.getProductsBySkus(skus).stream()
                 .collect(Collectors.toMap(
                         p -> p.getSku().value(),
                         p -> PriceResponse.newBuilder()

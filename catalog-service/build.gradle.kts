@@ -39,6 +39,7 @@ dependencies {
 
     // Java Annotations (needed for gRPC generated code on Java 9+)
     implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
@@ -64,7 +65,7 @@ protobuf {
 openApiGenerate {
     generatorName.set("spring")
     inputSpec.set("$projectDir/src/main/resources/api/catalog-api.yaml")
-    outputDir.set("$buildDir/generated/openapi/")
+    outputDir.set(layout.buildDirectory.dir("generated/openapi").get().asFile.absolutePath)
     apiPackage.set("com.factoryx.catalog.api")
     modelPackage.set("com.factoryx.catalog.model")
     configOptions.set(
@@ -79,9 +80,9 @@ openApiGenerate {
 sourceSets {
     main {
         java {
-            srcDir("$buildDir/generated/openapi/src/main/java")
-            srcDir("$buildDir/generated/source/proto/main/java")
-            srcDir("$buildDir/generated/source/proto/main/grpc")
+            srcDir(layout.buildDirectory.dir("generated/openapi/src/main/java"))
+            srcDir(layout.buildDirectory.dir("generated/source/proto/main/java"))
+            srcDir(layout.buildDirectory.dir("generated/source/proto/main/grpc"))
         }
     }
 }
