@@ -57,4 +57,10 @@ public class OrderLineItem {
     public Money subtotal() {
         return price.multiply(quantity.value());
     }
+
+    void increaseQuantity(Quantity additional) {
+        Require.nonNull(additional, "Additional quantity");
+        Require.argument(additional.isPositive(), "Additional quantity must be positive");
+        this.quantity = this.quantity.add(additional);
+    }
 }

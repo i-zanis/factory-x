@@ -3,13 +3,18 @@ package com.factoryx.inventory.stock
 import com.factoryx.common.domain.DomainRuleViolation
 import com.factoryx.common.domain.Quantity
 import com.factoryx.common.domain.Sku
+import com.factoryx.inventory.outbox.OutboxEvent
+import com.factoryx.inventory.outbox.OutboxRepository
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import kotlin.math.abs
 
 @Service
 class InventoryService(
-    private val stockLevelRepository: StockLevelRepository
+    private val stockLevelRepository: StockLevelRepository,
+    private val outboxRepository: OutboxRepository,
+    private val objectMapper: ObjectMapper
 ) {
 
     @Transactional
@@ -50,5 +55,25 @@ class InventoryService(
         }
 
         stockLevelRepository.saveAll(stockLevels.values)
+    }
+
+    @Transactional(noRollbackFor = [DomainRuleViolation::class])
+    fun processOrderStockUpdate(orderId: String, updates: List<Pair<Sku, Int>>) {
+        var status = "SUCCESS"
+        try {
+            updateStocks(updates)
+        } catch (e: DomainRuleViolation) {
+            status = "FAILED"
+        }
+
+        val responsePayload = mapOf("orderId" to orderId, "status" to status)
+        outboxRepository.save(
+            OutboxEvent(
+                aggregateType = "Order",
+                aggregateId = orderId,
+                type = "InventoryResponse",
+                payload = objectMapper.writeValueAsString(responsePayload)
+            )
+        )
     }
 }

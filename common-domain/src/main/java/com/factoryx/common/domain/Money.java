@@ -15,6 +15,10 @@ public record Money(BigDecimal amount, Currency currency) implements Comparable<
 
     public static final Money ZERO = new Money(BigDecimal.ZERO, Currency.getInstance("USD"));
 
+    public static Money zero(Currency currency) {
+        return new Money(BigDecimal.ZERO, currency);
+    }
+
     public Money {
         Require.nonNull(amount, "Amount");
         Require.nonNull(currency, "Currency");
