@@ -1,0 +1,7 @@
+package com.factoryx.order.infrastructure;
+
+public class ServiceUnavailableException extends RuntimeException {
+    public ServiceUnavailableException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}

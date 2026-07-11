@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "outbox")
@@ -14,19 +13,19 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OutboxEvent {
 
-    // TODO this is primitive
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @EmbeddedId
+    @AttributeOverride(name = "value", column = @Column(name = "id"))
+    private OutboxEventId id;
 
-    @Column(name = "aggregate_type", nullable = false)
-    private String aggregateType;
+    @Embedded
+    private AggregateType aggregateType;
 
     @Column(nullable = false)
     private String aggregateId;
 
-    @Column(name = "type", nullable = false)
-    private String type;
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "type"))
+    private EventType type;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String payload;
@@ -34,7 +33,8 @@ public class OutboxEvent {
     @Column(nullable = false)
     private Instant createdAt;
 
-    public OutboxEvent(String aggregateType, String aggregateId, String type, String payload) {
+    public OutboxEvent(AggregateType aggregateType, String aggregateId, EventType type, String payload) {
+        this.id = OutboxEventId.generate();
         this.aggregateType = aggregateType;
         this.aggregateId = aggregateId;
         this.type = type;

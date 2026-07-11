@@ -1,5 +1,7 @@
 package com.factoryx.order.messaging;
 
+import com.factoryx.common.domain.DomainRuleViolation;
+import com.factoryx.order.order.Order;
 import com.factoryx.order.order.OrderRepository;
 import com.factoryx.order.order.OrderId;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,20 +23,16 @@ public class InventoryResponseListener {
 
     @Transactional
     @KafkaListener(topics = {"inventory-responses"}, groupId = "order-group")
-    public void handleInventoryResponse(String message) {
-        try {
-            InventoryEvent event = objectMapper.readValue(message, InventoryEvent.class);
-            log.info("Received inventory response for order: {}. Status: {}", event.orderId().value(), event.status());
+    public void handleInventoryResponse(String message) throws Exception {
+        var event = objectMapper.readValue(message, InventoryEvent.class);
+        log.info("Received inventory response for order: {}. Status: {}", event.orderId().value(), event.status());
 
-            orderRepository.findById(event.orderId()).ifPresent(order -> {
-                if ("SUCCESS".equals(event.status())) order.approve();
-                else order.reject();
-                orderRepository.save(order);
-                log.info("Order: {} updated to status: {}", order.getId().value(), order.getStatus());
-            });
-        } catch (Exception e) {
-            log.error("Failed to process inventory response", e);
-        }
+        var order = orderRepository.findById(event.orderId())
+                .orElseThrow(() -> new DomainRuleViolation("Order not found: " + event.orderId().value()));
+        if ("SUCCESS".equals(event.status())) order.approve();
+        else order.reject();
+        orderRepository.save(order);
+        log.info("Order: {} updated to status: {}", order.getId().value(), order.getStatus());
     }
 
     public record InventoryEvent(OrderId orderId, String status) {

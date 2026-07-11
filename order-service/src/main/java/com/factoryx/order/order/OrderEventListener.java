@@ -47,7 +47,7 @@ public class OrderEventListener {
     public void handleOrderCreatedForRedis(OrderCreatedEvent event) {
         log.info("Updating Redis read-model for order: {}", event.orderId().value());
         try {
-            String key = "order:view:" + event.customerId().value();
+            var key = "order:view:" + event.customerId().value() + ":" + event.orderId().value();
             redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(event));
         } catch (JsonProcessingException e) {
             log.error("Failed to update Redis read-model for order: {}", event.orderId().value(), e);
