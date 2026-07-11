@@ -1,41 +1,45 @@
 package com.factoryx.catalog.product;
 
+import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Sku;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public List<ProductProjection> getAllProducts() {
-        return productRepository.findAllProjectedBy();
-    }
-
-    public Optional<Product> getProductById(ProductId id) {
-        return productRepository.findById(id);
-    }
-
-    public Optional<Product> getProductBySku(Sku sku) {
-        return productRepository.findBySku(sku);
-    }
-
-    public List<Product> getProductsBySkus(List<Sku> skus) {
-        return productRepository.findAllBySkuIn(skus);
+    @Transactional
+    public Product createProduct(Sku sku, String name, Money price) {
+        var product = Product.create(sku, name, price);
+        return productRepository.save(product);
     }
 
     @Transactional
-    public Product createProduct(Sku sku, String name, Money price) {
-        Product product = Product.create(sku, name, price);
+    public Product updatePrice(ProductId id, Money newPrice) {
+        var product = productRepository.findById(id)
+                .orElseThrow(() -> new DomainRuleViolation("Product not found: " + id.value()));
+        product.updatePrice(newPrice);
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product applyDiscount(ProductId id, int percent) {
+        var product = productRepository.findById(id)
+                .orElseThrow(() -> new DomainRuleViolation("Product not found: " + id.value()));
+        product.applyDiscount(percent);
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Product rename(ProductId id, ProductName newName) {
+        var product = productRepository.findById(id)
+                .orElseThrow(() -> new DomainRuleViolation("Product not found: " + id.value()));
+        product.rename(newName);
         return productRepository.save(product);
     }
 }

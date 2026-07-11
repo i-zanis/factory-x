@@ -17,7 +17,7 @@ import java.util.List;
 
 @Embeddable
 @Getter
-@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class AuditInfo {
 
     @CreatedDate
@@ -38,25 +38,15 @@ public class AuditInfo {
     @Nullable
     private String updatedBy;
 
-    @Column(updatable = false)
     @Nullable
     private Instant deletedAt;
 
-    @Column(updatable = false)
     @Nullable
     private String deletedBy;
 
     @Version
     @Nullable
     private Integer version;
-
-    public static AuditInfo create() {
-        return new AuditInfo();
-    }
-
-    public void touch() {
-        updatedAt = Instant.now();
-    }
 
     public boolean isNew() {
         return version == null;
@@ -103,25 +93,6 @@ public class AuditInfo {
     public boolean isModified() {
         if (createdAt == null || updatedAt == null) return false;
         return updatedAt.isAfter(createdAt);
-    }
-
-    public void stampCreatedBy(String user) {
-        if (this.createdBy == null) {
-            this.createdBy = user;
-            if (this.createdAt == null) {
-                this.createdAt = Instant.now();
-            }
-        }
-    }
-
-    public void stampUpdatedBy(String user) {
-        this.updatedBy = user;
-        touch();
-    }
-
-    public void applySystemStamp() {
-        updatedBy = "SYSTEM";
-        touch();
     }
 
     public List<String> toAuditTrail() {
