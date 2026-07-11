@@ -40,12 +40,28 @@ class InventoryService(
     }
 
     @Transactional
+    fun replenishStock(sku: Sku, quantity: Quantity) {
+        val stockLevel =
+            stockLevelRepository.findById(sku).orElseThrow { DomainRuleViolation("SKU not found: ${sku.value()}") }
+        stockLevel.replenish(quantity)
+        stockLevelRepository.save(stockLevel)
+    }
+
+    @Transactional
+    fun consumeStock(sku: Sku, quantity: Quantity) {
+        val stockLevel =
+            stockLevelRepository.findById(sku).orElseThrow { DomainRuleViolation("SKU not found: ${sku.value()}") }
+        stockLevel.consume(quantity)
+        stockLevelRepository.save(stockLevel)
+    }
+
+    @Transactional
     fun updateStocks(updates: List<Pair<Sku, Int>>) {
         val skus = updates.map { it.first }
         val stockLevels = stockLevelRepository.findAllById(skus).associateBy { it.sku }
 
         updates.forEach { (sku, quantityChange) ->
-            val stockLevel = stockLevels[sku] ?: throw IllegalArgumentException("SKU not found: ${sku.value()}")
+            val stockLevel = stockLevels[sku] ?: throw DomainRuleViolation("SKU not found: ${sku.value()}")
 
             if (quantityChange >= 0) {
                 stockLevel.replenish(Quantity(quantityChange))

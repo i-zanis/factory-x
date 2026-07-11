@@ -2,7 +2,10 @@ package com.factoryx.inventory.stock
 
 import com.factoryx.common.domain.Quantity
 import com.factoryx.common.domain.Sku
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Positive
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,9 +22,9 @@ class InventoryController(
     )
 
     @GetMapping("/{sku}")
-    fun getStock(@PathVariable sku: String): ResponseEntity<StockLevel> {
+    fun getStock(@PathVariable sku: String): ResponseEntity<StockLevelDto> {
         val stock = stockLevelRepository.findById(Sku(sku))
-        return stock.map { ResponseEntity.ok(it) }.orElseGet { ResponseEntity.notFound().build() }
+        return stock.map { ResponseEntity.ok(StockLevelDto.from(it)) }.orElseGet { ResponseEntity.notFound().build() }
     }
 
     @PostMapping("/{sku}/initialize")
@@ -38,7 +41,7 @@ class InventoryController(
         @PathVariable sku: String,
         @RequestParam @Positive(message = "Quantity must be strictly positive") quantity: Int
     ): ResponseEntity<Void> {
-        inventoryService.updateStock(Sku(sku), quantity)
+        inventoryService.replenishStock(Sku(sku), Quantity(quantity))
         return ResponseEntity.ok().build()
     }
 
@@ -47,7 +50,7 @@ class InventoryController(
         @PathVariable sku: String,
         @RequestParam @Positive(message = "Quantity must be strictly positive") quantity: Int
     ): ResponseEntity<Void> {
-        inventoryService.updateStock(Sku(sku), -quantity)
+        inventoryService.consumeStock(Sku(sku), Quantity(quantity))
         return ResponseEntity.ok().build()
     }
 }

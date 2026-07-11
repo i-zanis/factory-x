@@ -1,5 +1,6 @@
 package com.factoryx.inventory.stock
 
+import com.factoryx.common.domain.Quantity
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Component
 
@@ -11,10 +12,10 @@ class StockEventListener(
     fun onStockReplenished(event: StockReplenishedEvent) {
         val change = event.newQuantity.value() - event.oldQuantity.value()
         stockTransactionLogRepository.save(
-            StockTransactionLog(
+            StockTransactionLog.create(
                 sku = event.sku,
-                quantityChange = com.factoryx.common.domain.Quantity(change),
-                reason = "REPLENISH"
+                quantityChange = Quantity(change),
+                reason = TransactionReason.REPLENISH
             )
         )
     }
@@ -23,10 +24,10 @@ class StockEventListener(
     fun onStockConsumed(event: StockConsumedEvent) {
         val change = event.oldQuantity.value() - event.newQuantity.value()
         stockTransactionLogRepository.save(
-            StockTransactionLog(
+            StockTransactionLog.create(
                 sku = event.sku,
-                quantityChange = com.factoryx.common.domain.Quantity(change),
-                reason = "CONSUME"
+                quantityChange = Quantity(change),
+                reason = TransactionReason.CONSUME
             )
         )
     }

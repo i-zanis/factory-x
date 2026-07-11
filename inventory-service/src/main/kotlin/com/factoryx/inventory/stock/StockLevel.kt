@@ -19,7 +19,7 @@ class StockLevel private constructor(
     private var quantity: Quantity,
 
     @Version
-    var version: Long? = null
+    private var version: Long? = null
 ) : AbstractAggregateRoot<StockLevel>() {
 
     init {
