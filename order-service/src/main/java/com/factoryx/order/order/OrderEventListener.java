@@ -29,7 +29,7 @@ public class OrderEventListener {
     public void handleOrderCreatedForOutbox(OrderCreatedEvent event) {
         log.info("Creating outbox event for order: {}", event.orderId().value());
         try {
-            OutboxEvent outboxEvent = new OutboxEvent(
+            var outboxEvent = new OutboxEvent(
                     new AggregateType("Order"),
                     event.orderId().value().toString(),
                     new EventType("OrderCreated"),
@@ -43,7 +43,7 @@ public class OrderEventListener {
     }
 
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleOrderCreatedForRedis(OrderCreatedEvent event) {
         log.info("Updating Redis read-model for order: {}", event.orderId().value());
         try {

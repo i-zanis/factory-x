@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SoftDelete;
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,25 +39,26 @@ public class Order extends AbstractAggregateRoot<Order> {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
-    private List<OrderLineItem> lineItems = new ArrayList<>();
+    private final List<OrderLineItem> lineItems = new ArrayList<>();
 
     @Embedded
+    @Nullable
     private Money totalPrice;
 
     @Embedded
     private AuditInfo auditInfo;
 
-    private Order(OrderId id, CustomerId customerId, OrderStatus status, AuditInfo auditInfo) {
+    private Order(OrderId id, CustomerId customerId, @Nullable OrderStatus status, @Nullable AuditInfo auditInfo) {
         this.id = Require.nonNull(id, "Order ID");
         this.customerId = Require.nonNull(customerId, "Customer ID");
         this.status = status != null ? status : OrderStatus.PENDING;
-        this.auditInfo = auditInfo != null ? auditInfo : AuditInfo.create();
+        this.auditInfo = auditInfo != null ? auditInfo : new AuditInfo();
     }
 
     public static Order create(CustomerId customerId) {
-        return new Order(OrderId.generate(), customerId, OrderStatus.PENDING, AuditInfo.create());
+        return new Order(OrderId.generate(), customerId, OrderStatus.PENDING, new AuditInfo());
     }
 
     public List<OrderLineItem> getLineItems() {
@@ -67,20 +69,26 @@ public class Order extends AbstractAggregateRoot<Order> {
         if (this.status != OrderStatus.PENDING) {
             throw new DomainRuleViolation("Cannot add items to " + this.status + " order");
         }
+        for (OrderLineItem existing : this.lineItems) {
+            if (existing.getSku().equals(sku)) {
+                existing.increaseQuantity(quantity);
+                return;
+            }
+        }
         this.lineItems.add(OrderLineItem.create(productId, sku, quantity, price));
     }
 
-    public OrderCreatedEvent place() {
-        if (this.status != OrderStatus.PENDING) {
-            throw new DomainRuleViolation("Order already " + this.status);
-        }
+    public void place() {
+        transitionTo(OrderStatus.PLACED);
 
         Require.notEmpty(this.lineItems, "Cannot place empty order");
+
         this.totalPrice = this.lineItems.stream()
                 .map(OrderLineItem::subtotal)
-                .reduce(Money.ZERO, Money::add);
+                .reduce(Money::add)
+                .orElseThrow();
 
-        OrderCreatedEvent event = new OrderCreatedEvent(
+        registerEvent(new OrderCreatedEvent(
                 this.id,
                 this.customerId,
                 this.totalPrice,
@@ -92,32 +100,25 @@ public class Order extends AbstractAggregateRoot<Order> {
                                 item.getPrice()
                         ))
                         .toList()
-        );
-        registerEvent(event);
-        return event;
+        ));
     }
 
     public void approve() {
-        if (this.status == OrderStatus.PENDING) {
-            this.status = OrderStatus.APPROVED;
-        } else {
-            throw new DomainRuleViolation("Cannot approve order in status " + this.status);
-        }
+        transitionTo(OrderStatus.APPROVED);
     }
 
     public void reject() {
-        if (this.status == OrderStatus.PENDING) {
-            this.status = OrderStatus.REJECTED;
-        } else {
-            throw new DomainRuleViolation("Cannot reject order in status " + this.status);
-        }
+        transitionTo(OrderStatus.REJECTED);
     }
 
     public void fulfill() {
-        if (this.status == OrderStatus.APPROVED) {
-            this.status = OrderStatus.FULFILLED;
-        } else {
-            throw new DomainRuleViolation("Cannot fulfill order in status " + this.status);
+        transitionTo(OrderStatus.FULFILLED);
+    }
+
+    private void transitionTo(OrderStatus target) {
+        if (!this.status.canTransitionTo(target)) {
+            throw new DomainRuleViolation("Cannot transition from " + this.status + " to " + target);
         }
+        this.status = target;
     }
 }
