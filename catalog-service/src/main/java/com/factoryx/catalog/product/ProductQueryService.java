@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-// Done: CQRS separation — queries bypass the aggregate write model
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

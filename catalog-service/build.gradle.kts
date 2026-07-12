@@ -25,6 +25,8 @@ dependencies {
     // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
 
     // Swagger UI / OpenAPI Annotations
     implementation("io.swagger.core.v3:swagger-annotations:2.2.27")
@@ -53,6 +55,9 @@ protobuf {
             artifact = "io.grpc:protoc-gen-grpc-java:${project.extra["grpcVersion"]}"
         }
     }
+    // TODO: protobuf gradle plugin and AOT (extractIncludeAotProto) are currently failing together with:
+    // "Querying the mapped value of provider(java.util.Set) before task ':catalog-service:processAot' has completed is not supported"
+    // Needs investigation on how to fix AOT for gRPC/protobuf code.
     generateProtoTasks {
         all().forEach {
             it.plugins {
@@ -72,7 +77,8 @@ openApiGenerate {
         mapOf(
             "interfaceOnly" to "true",
             "useSpringBoot3" to "true",
-            "useJakartaEe" to "true"
+            "useJakartaEe" to "true",
+            "additionalModelTypeAnnotations" to "@lombok.Builder(setterPrefix = \"with\")"
         )
     )
 }

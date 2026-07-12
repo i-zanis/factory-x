@@ -2,6 +2,7 @@ package com.factoryx.catalog.product;
 
 import com.factoryx.catalog.api.ProductsApi;
 import com.factoryx.catalog.model.ProductRequest;
+import com.factoryx.catalog.model.Product;
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Sku;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +18,18 @@ import java.util.UUID;
 public class ProductController implements ProductsApi {
 
     private final ProductService productService;
+    private final ProductQueryService productQueryService;
 
     @Override
     public ResponseEntity<List<Product>> listProducts() {
-        var products = productService.getAllProducts().stream()
+        var products = productQueryService.getAllProducts().stream()
                 .map(ProductAssembler::toDto)
                 .toList();
         return ResponseEntity.ok(products);
     }
 
     @Override
-    public ResponseEntity<com.factoryx.catalog.model.Product> createProduct(ProductRequest productRequest) {
+    public ResponseEntity<Product> createProduct(ProductRequest productRequest) {
         Sku sku = new Sku(productRequest.getSku());
         Money price = new Money(productRequest.getPrice());
         
@@ -37,7 +39,7 @@ public class ProductController implements ProductsApi {
 
     @Override
     public ResponseEntity<Product> getProductById(UUID id) {
-        return productService.getProductById(new ProductId(id))
+        return productQueryService.getProductById(new ProductId(id))
                 .map(ProductAssembler::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
