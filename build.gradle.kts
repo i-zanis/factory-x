@@ -63,4 +63,9 @@ subprojects {
     project.extra["openapiVersion"] = "7.10.0"
     project.extra["commonsLangVersion"] = "3.17.0"
     project.extra["lombok.version"] = "1.18.38"
+
+//    TODO(): what is this is this silly?
+    tasks.matching { it.name == "processAot" }.configureEach {
+        enabled = false
+    }
 }
