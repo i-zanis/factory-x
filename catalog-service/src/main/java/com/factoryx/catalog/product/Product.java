@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import org.jspecify.annotations.Nullable;
 
+
 import static org.apache.commons.lang3.StringUtils.isAsciiPrintable;
 import static org.apache.commons.lang3.StringUtils.normalizeSpace;
 
@@ -52,7 +53,7 @@ public class Product extends AbstractAggregateRoot<Product> {
         this.price = Require.nonNull(price, "Price");
         Require.argument(!price.isZero(), "Price must be > 0");
         
-        this.auditInfo = AuditInfo.create();
+        this.auditInfo = new AuditInfo();
         registerEvent(new ProductCreatedEvent(this.id, this.price));
     }
 
@@ -87,8 +88,5 @@ public class Product extends AbstractAggregateRoot<Product> {
         this.name = Require.nonNull(name, "Product name");
     }
 
-    public String getName() {
-        return name.value();
-    }
 }
 
