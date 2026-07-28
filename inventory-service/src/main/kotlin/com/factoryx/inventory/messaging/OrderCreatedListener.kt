@@ -1,6 +1,5 @@
 package com.factoryx.inventory.messaging
 
-import com.factoryx.common.domain.DomainRuleViolation
 import com.factoryx.common.domain.Sku
 import com.factoryx.inventory.stock.InventoryService
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -30,22 +29,12 @@ class OrderCreatedListener(
                 val updates = orderData.lineItems.map { item ->
                     Sku(item.sku) to -item.quantity
                 }
-                inventoryService.updateStocks(updates)
-                sendResponse(orderId, "SUCCESS")
-            } catch (e: DomainRuleViolation) {
-                log.warn("Stock update rejected for order: $orderId - ${e.message}")
-                sendResponse(orderId, "FAILED")
+                inventoryService.processOrderStockUpdate(orderId, updates)
+            } catch (e: Exception) {
+                log.error("Failed to process order stock update for order: $orderId", e)
+                throw e // Let Kafka retry or route to DLT
             }
-            // TODO Consider retry or dead-letter queue for infra errors
-            // Use Spring Kafka DeadLetterPublishingRecoverer for automatic DLT routing.
-            // A: Yes. DLT is required to avoid losing events on transient DB failure.
-            // A2: Consider @Retryable on the inventoryService call before failing completely.
         }
     }
-
-    private fun sendResponse(orderId: String, status: String) {
-        val response = mapOf("orderId" to orderId, "status" to status)
-        kafkaTemplate.send("inventory-responses", orderId, objectMapper.writeValueAsString(response))
-        log.info("Sent inventory response for order: $orderId with status: $status")
-    }
 }
+
