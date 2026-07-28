@@ -1,6 +1,7 @@
 package com.factoryx.order.order;
 
 import com.factoryx.order.application.OrderDtoMapper;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,7 @@ public class OrderController {
         return ResponseEntity.ok(orderQueryService.getOrdersByCustomer(new CustomerId(customerId)));
     }
 
+    @Builder
     public record PlaceOrderRequest(
             @NotNull UUID customerId,
             @NotEmpty List<@Valid OrderLineItemRequest> items) {
