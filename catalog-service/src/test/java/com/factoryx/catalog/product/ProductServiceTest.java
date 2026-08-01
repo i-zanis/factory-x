@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static com.factoryx.catalog.product.ProductMother.custom;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,7 +44,7 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        product = ProductMother.custom().build();
+        product = custom().build();
         productId = product.getId();
     }
 
@@ -85,7 +86,7 @@ class ProductServiceTest {
     @ParameterizedTest
     @MethodSource("discountScenarios")
     void applyDiscount_ValidScenarios_AppliesAndSaves(DiscountScenario scenario) {
-        Product p = ProductMother.custom().sku(new Sku("AAA-1234")).name("Test").price(new Money(100.0)).build();
+        Product p = custom().sku(new Sku("AAA-1234")).name("Test").price(new Money(100.0)).build();
         given(productRepository.findById(p.getId())).willReturn(Optional.of(p));
         given(productRepository.save(p)).willReturn(p);
 
