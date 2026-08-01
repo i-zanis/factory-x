@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Optional;
 
+import static com.factoryx.catalog.product.ProductMother.custom;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -48,7 +49,7 @@ class ProductControllerTest {
                 .name("New Product")
                 .price(100.50)
                 .build();
-        Product product = ProductMother.custom().sku(new Sku("SKU-1234")).name("New Product").price(new Money(100.50)).build();
+        Product product = custom().sku(new Sku("SKU-1234")).name("New Product").price(new Money(100.50)).build();
         given(productService.createProduct(eq(new Sku("SKU-1234")), eq("New Product"), any(Money.class))).willReturn(product);
 
         ResultActions actual = sut.perform(post("/products")
@@ -62,7 +63,7 @@ class ProductControllerTest {
 
     @Test
     void getProductById_Found_Returns200() throws Exception {
-        Product product = ProductMother.custom().build();
+        Product product = custom().build();
         given(productQueryService.getProductById(product.getId())).willReturn(Optional.of(product));
 
         ResultActions actual = sut.perform(get("/products/" + product.getId().value()));
