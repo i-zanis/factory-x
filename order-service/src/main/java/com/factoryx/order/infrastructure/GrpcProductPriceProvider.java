@@ -11,9 +11,17 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 
+/**
+ * gRPC client with Resilience4j Bulkhead.
+ * The bulkhead pattern prevents thread exhaustion by limiting the number of concurrent 
+ * synchronous calls to the catalog-service. If the catalog-service is slow, this protects 
+ * the order-service from crashing due to running out of threads.
+ */
 @Service
 @RequiredArgsConstructor
+@Bulkhead(name = "catalog-grpc")
 public class GrpcProductPriceProvider implements ProductPriceProvider {
 
     @GrpcClient("catalog-service")
