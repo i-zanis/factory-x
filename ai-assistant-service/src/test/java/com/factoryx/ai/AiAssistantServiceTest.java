@@ -31,7 +31,7 @@ class AiAssistantServiceTest {
     @Test
     void chat_CallsChatClientAndReturnsContent() {
         var message = new PromptMessage("Check factory status");
-        given(chatClient.prompt().user(anyString()).call().content())
+        given(chatClient.prompt().user(anyString()).functions(anyString()).call().content())
                 .willReturn("All systems operational");
 
         var actual = sut.chat(message);
@@ -42,7 +42,7 @@ class AiAssistantServiceTest {
     @Test
     void streamChat_CallsChatClientAndReturnsFlux() {
         var message = new PromptMessage("Stream status");
-        given(chatClient.prompt().user(anyString()).stream().content())
+        given(chatClient.prompt().user(anyString()).functions(anyString()).stream().content())
                 .willReturn(Flux.just("All ", "systems ", "operational"));
 
         var actual = sut.streamChat(message);
