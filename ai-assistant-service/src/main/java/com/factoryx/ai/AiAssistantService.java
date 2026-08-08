@@ -14,6 +14,7 @@ public class AiAssistantService {
     public String chat(PromptMessage message) {
         return chatClient.prompt()
                 .user(message.value())
+                .functions("orderStatusFunction")
                 .call()
                 .content();
     }
@@ -21,6 +22,7 @@ public class AiAssistantService {
     public Flux<String> streamChat(PromptMessage message) {
         return chatClient.prompt()
                 .user(message.value())
+                .functions("orderStatusFunction")
                 .stream()
                 .content();
     }

@@ -16,7 +16,7 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-otlp")
     implementation("net.logstash.logback:logstash-logback-encoder")
     testImplementation("org.springframework.cloud:spring-cloud-starter-contract-verifier")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
 
     // DB
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -55,9 +55,6 @@ protobuf {
             artifact = "io.grpc:protoc-gen-grpc-java:${project.extra["grpcVersion"]}"
         }
     }
-    // TODO: protobuf gradle plugin and AOT (extractIncludeAotProto) are currently failing together with:
-    // "Querying the mapped value of provider(java.util.Set) before task ':catalog-service:processAot' has completed is not supported"
-    // Needs investigation on how to fix AOT for gRPC/protobuf code.
     generateProtoTasks {
         all().forEach {
             it.plugins {
@@ -78,7 +75,7 @@ openApiGenerate {
             "interfaceOnly" to "true",
             "useSpringBoot3" to "true",
             "useJakartaEe" to "true",
-            "additionalModelTypeAnnotations" to "@lombok.Builder(setterPrefix = \"with\")"
+            "additionalModelTypeAnnotations" to "@lombok.Builder"
         )
     )
 }
