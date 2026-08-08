@@ -34,9 +34,9 @@ public class OrderService {
 
         for (var req : requests) {
             var sku = new Sku(req.sku());
-            var priceInfo = priceMap.get(sku);
+            var pricedItem = priceMap.get(sku);
 
-            if (priceInfo == null || !priceInfo.exists()) {
+            if (pricedItem == null || !pricedItem.exists()) {
                 throw new DomainRuleViolation("SKU not found in catalog: " + sku.value());
             }
 
@@ -44,7 +44,7 @@ public class OrderService {
                     new ProductId(req.productId()),
                     sku,
                     new Quantity(req.quantity()),
-                    priceInfo.price()
+                    pricedItem.price()
             );
         }
 

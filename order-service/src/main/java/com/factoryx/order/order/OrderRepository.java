@@ -7,5 +7,4 @@ import java.util.List;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, OrderId> {
-    List<OrderSummaryProjection> findByCustomerId(CustomerId customerId);
 }

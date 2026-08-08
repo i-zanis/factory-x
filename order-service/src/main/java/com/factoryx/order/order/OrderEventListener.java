@@ -1,6 +1,5 @@
 package com.factoryx.order.order;
 
-import com.factoryx.common.domain.DomainRuleViolation;
 import com.factoryx.order.outbox.AggregateType;
 import com.factoryx.order.outbox.EventType;
 import com.factoryx.order.outbox.OutboxEvent;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -38,7 +36,7 @@ public class OrderEventListener {
             outboxRepository.save(outboxEvent);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order for outbox: {}", event.orderId().value(), e);
-            throw new DomainRuleViolation("Outbox serialization failure: " + e.getMessage());
+            throw new IllegalStateException("Outbox serialization failure for order: " + event.orderId().value(), e);
         }
     }
 

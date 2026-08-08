@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Order Service Entry Point
@@ -16,8 +17,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
  */
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
+@EnableScheduling
 public class OrderApplication {
-    public static void main(String[] args) {
+    static void main(String[] args) {
         SpringApplication.run(OrderApplication.class, args);
     }
 

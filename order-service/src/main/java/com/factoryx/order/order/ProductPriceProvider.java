@@ -11,10 +11,7 @@ import java.util.Map;
  */
 public interface ProductPriceProvider {
 
-    PriceInfo getPriceInfo(Sku sku);
+    PricedCatalogItem getPriceInfo(Sku sku);
 
-    Map<Sku, PriceInfo> getPriceInfos(List<Sku> skus);
-
-    record PriceInfo(Money price, boolean exists) {
-    }
+    Map<Sku, PricedCatalogItem> getPriceInfos(List<Sku> skus);
 }

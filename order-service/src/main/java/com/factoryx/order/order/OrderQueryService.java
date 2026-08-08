@@ -15,11 +15,10 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class OrderQueryService {
 
-    private final OrderRepository orderRepository;
+    private final OrderSummaryViewRepository readModelRepository;
 
-    @Cacheable(value = "order:view", key = "#customerId.value()", unless = "#result == null")
-    public List<OrderSummaryProjection> getOrdersByCustomer(CustomerId customerId) {
-        log.info("Redis cache miss with customerId: {}", customerId.value());
-        return orderRepository.findByCustomerId(customerId);
+    public List<OrderSummaryView> getOrdersByCustomer(CustomerId customerId) {
+        log.info("Querying relational read model for customerId: {}", customerId.value());
+        return readModelRepository.findByCustomerId(customerId.value());
     }
 }
