@@ -16,7 +16,6 @@ dependencies {
     testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
     runtimeOnly("org.postgresql:postgresql")
 
     // [Resilience4j]
@@ -31,10 +30,13 @@ dependencies {
     implementation("io.grpc:grpc-stub:${project.extra["grpcVersion"]}")
     implementation("io.grpc:grpc-protobuf:${project.extra["grpcVersion"]}")
     implementation("jakarta.annotation:jakarta.annotation-api")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
 
     // [Lombok]
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
     
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
@@ -60,8 +62,8 @@ protobuf {
 sourceSets {
     main {
         java {
-            srcDir("$buildDir/generated/source/proto/main/java")
-            srcDir("$buildDir/generated/source/proto/main/grpc")
+            srcDir(layout.buildDirectory.dir("generated/source/proto/main/java"))
+            srcDir(layout.buildDirectory.dir("generated/source/proto/main/grpc"))
         }
     }
 }

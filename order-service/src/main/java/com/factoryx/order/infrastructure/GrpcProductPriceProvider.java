@@ -3,6 +3,7 @@ package com.factoryx.order.infrastructure;
 import com.factoryx.catalog.grpc.*;
 import com.factoryx.common.domain.Money;
 import com.factoryx.common.domain.Sku;
+import com.factoryx.order.order.PricedCatalogItem;
 import com.factoryx.order.order.ProductPriceProvider;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
@@ -28,15 +29,15 @@ public class GrpcProductPriceProvider implements ProductPriceProvider {
     private InternalCatalogServiceGrpc.InternalCatalogServiceBlockingStub catalogStub;
 
     @Override
-    public PriceInfo getPriceInfo(Sku sku) {
+    public PricedCatalogItem getPriceInfo(Sku sku) {
         PriceResponse response = catalogStub.getProductPrice(
                 PriceRequest.newBuilder().setSku(sku.value()).build()
         );
-        return new PriceInfo(new Money(response.getPrice()), response.getExists());
+        return new PricedCatalogItem(sku, new Money(response.getPrice()), response.getExists());
     }
 
     @Override
-    public Map<Sku, PriceInfo> getPriceInfos(List<Sku> skus) {
+    public Map<Sku, PricedCatalogItem> getPriceInfos(List<Sku> skus) {
         BatchPriceRequest request = BatchPriceRequest.newBuilder()
                 .addAllSkus(skus.stream().map(Sku::value).toList())
                 .build();
@@ -46,7 +47,7 @@ public class GrpcProductPriceProvider implements ProductPriceProvider {
         return response.getPricesList().stream()
                 .collect(Collectors.toMap(
                         pr -> new Sku(pr.getSku()),
-                        pr -> new PriceInfo(new Money(pr.getPrice()), pr.getExists())
+                        pr -> new PricedCatalogItem(new Sku(pr.getSku()), new Money(pr.getPrice()), pr.getExists())
                 ));
     }
 }

@@ -2,6 +2,7 @@ package com.factoryx.catalog.product;
 
 import com.factoryx.common.domain.Sku;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, ProductId> {
+public interface ProductRepository extends JpaRepository<Product, ProductId>, JpaSpecificationExecutor<Product> {
     Optional<Product> findBySku(Sku sku);
 
     List<Product> findAllBySkuIn(List<Sku> skus);
